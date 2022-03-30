@@ -34,6 +34,12 @@ class Lattice:
             raise ValueError("Given spins must be an array of {} x {} spins, containing only 1 and -1 values".format(self.size, self.size))
 
 
+    def uniformRandomSpins(self):
+
+        random_draws = np.random.randint(2, size=(self.size, self.size))
+        random_draws[random_draws == 0] = -1
+        self.spins = random_draws
+
     def magnetisation(self):
         '''
         Computes the total magnetisation of the lattice, i.e. the sum of all spins.
