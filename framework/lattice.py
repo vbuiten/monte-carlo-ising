@@ -1,4 +1,5 @@
 import numpy as np
+from framework.utils import hamiltonian
 
 class Lattice:
     def __init__(self, size):
@@ -62,3 +63,10 @@ class Lattice:
 
         m = self.magnetisation() / self.size**2
         return m
+
+
+    def hamiltonian(self):
+
+        energy = hamiltonian(self.x_grid, self.y_grid, self.spins, self.size)
+
+        return energy
