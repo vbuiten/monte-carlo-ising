@@ -41,6 +41,16 @@ class Lattice:
         random_draws[random_draws == 0] = -1
         self.spins = random_draws
 
+
+    def flipRandomSpin(self):
+        '''
+        Flips a single, random spin. The indices are drawn from a uniform random distribution.
+        '''
+
+        i, j = np.random.randint(0, self.size, size=2)
+        self._spins[i,j] = -self._spins[i,j]
+
+
     def magnetisation(self):
         '''
         Computes the total magnetisation of the lattice, i.e. the sum of all spins.
