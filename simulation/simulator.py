@@ -24,23 +24,20 @@ class Simulator:
 
         # measure the energy in the current state
         current_energy = self.lattice.hamiltonian()
-        current_spins = self.lattice.spins
+        current_spins = np.copy(self.lattice.spins)
 
         # randomly flip one spin
         self.lattice.flipRandomSpin()
         new_energy = self.lattice.hamiltonian()
 
-        if new_energy < current_energy:
-            # keep the new spins
-            pass
-
-        else:
+        if new_energy > current_energy:
             ratio = self.exp_minus_beta**(new_energy - current_energy)
             accept = np.random.binomial(1, ratio)
 
             if not accept:
                 self.lattice.spins = current_spins
                 new_energy = current_energy
+                #print ("Not accepted. New energy: {}".format(new_energy))
 
         return new_energy
 
@@ -51,7 +48,7 @@ class Simulator:
         magnetisations = np.zeros(times.shape)
         energies = np.zeros(times.shape)
 
-        energy = 0.
+        energy = self.lattice.hamiltonian()
 
         for i, time in enumerate(times):
 

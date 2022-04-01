@@ -26,6 +26,11 @@ class LatticeVisual:
         self.ax.set_xlabel(r"$x$")
         self.ax.set_ylabel(r"$y$")
 
+    def update(self):
+
+        self.im = self.ax.pcolormesh(self.lattice.x_grid, self.lattice.y_grid, self.lattice.spins, cmap=self.cmap)
+
+
     def show(self):
 
         self.fig.show()
