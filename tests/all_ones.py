@@ -5,8 +5,8 @@ from analysis.visualisation import LatticeVisual
 import matplotlib.pyplot as plt
 import numpy as np
 
-temp = 5.0
-N = 10
+temp = 10.0
+N = 20
 
 lattice = Lattice(N)
 lattice.spins = np.ones((N,N))

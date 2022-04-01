@@ -48,3 +48,17 @@ def hamiltonian(x_grid, y_grid, spins, lattice_size, J=1):
     energy = -J * np.sum(terms_particles)
 
     return energy
+
+
+def updateHamiltonian(x_grid, y_grid, spins, lattice_size, flip_indices, old_hamiltonian, J=1.):
+
+    x, y = x_grid[flip_indices], y_grid[flip_indices]
+    neighbour_spins = spins[((x_grid == periodicCoordinate(x-1, lattice_size)) & (y_grid == y)) |
+                            ((x_grid == periodicCoordinate(x+1, lattice_size)) & (y_grid == y)) |
+                            ((x_grid == x) & (y_grid == periodicCoordinate(y-1, lattice_size))) |
+                            ((x_grid == x) & (y_grid == periodicCoordinate(y+1, lattice_size)))]
+
+    term_flipped_spin = -J * np.sum(neighbour_spins) * spins[flip_indices]
+    new_hamiltonian = old_hamiltonian + 2 * term_flipped_spin
+
+    return new_hamiltonian

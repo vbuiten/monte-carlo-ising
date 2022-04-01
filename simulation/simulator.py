@@ -20,15 +20,21 @@ class Simulator:
         self.time_per_flip = 1./self.flips_per_time
         self.time = 0.
 
-    def step(self):
+    def step(self, current_energy=None):
 
-        # measure the energy in the current state
-        current_energy = self.lattice.hamiltonian()
+        if current_energy is None:
+            # measure the energy in the current state
+            current_energy = self.lattice.hamiltonian()
+        elif isinstance(current_energy, float) or isinstance(current_energy, int):
+            pass
+        else:
+            raise TypeError("Parameter 'current_energy' should be a float or an integer.")
+
         current_spins = np.copy(self.lattice.spins)
 
         # randomly flip one spin
-        self.lattice.flipRandomSpin()
-        new_energy = self.lattice.hamiltonian()
+        flip_i, flip_j = self.lattice.flipRandomSpin()
+        new_energy = self.lattice.updateHamiltonian((flip_i, flip_j), current_energy)
 
         if new_energy > current_energy:
             ratio = self.exp_minus_beta**(new_energy - current_energy)
@@ -54,7 +60,7 @@ class Simulator:
 
             energies[i] = energy
             magnetisations[i] = self.lattice.magnetisation()
-            energy = self.step()
+            energy = self.step(current_energy=energy)
 
             if (time - self.time) % 1 == 0:
                 print ("Time: {}".format(time))

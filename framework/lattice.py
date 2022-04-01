@@ -1,5 +1,5 @@
 import numpy as np
-from framework.utils import hamiltonian
+from framework.utils import hamiltonian, updateHamiltonian
 
 class Lattice:
     def __init__(self, size):
@@ -49,6 +49,7 @@ class Lattice:
 
         i, j = np.random.randint(0, self.size, size=2)
         self._spins[i,j] = -self._spins[i,j]
+        return i, j
 
 
     def magnetisation(self):
@@ -80,3 +81,10 @@ class Lattice:
         energy = hamiltonian(self.x_grid, self.y_grid, self.spins, self.size)
 
         return energy
+
+
+    def updateHamiltonian(self, flip_indices, old_hamiltonian):
+
+        new_energy = updateHamiltonian(self.x_grid, self.y_grid, self.spins, self.size, flip_indices, old_hamiltonian)
+
+        return new_energy
