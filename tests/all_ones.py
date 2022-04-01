@@ -16,7 +16,7 @@ vis.ax.set_title("Initial Configuration")
 vis.show()
 
 sim = Simulator(lattice, temp)
-times, magnetisations, energies = sim.evolve(100)
+times, magnetisations, energies = sim.evolve(500)
 
 fig, ax = plt.subplots(figsize=(7,5), dpi=240)
 ax.plot(times, energies, lw=.5)
