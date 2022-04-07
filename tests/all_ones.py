@@ -5,8 +5,8 @@ from analysis.visualisation import LatticeVisual
 import matplotlib.pyplot as plt
 import numpy as np
 
-temp = 10.0
-N = 20
+temp = 2.2
+N = 50
 
 path = r"C:\\Users\\victo\\Documents\\Uni\\COP\\"
 file = path+"ising-test.hdf5"

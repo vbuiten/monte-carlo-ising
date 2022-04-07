@@ -6,6 +6,14 @@ plt.rcParams["font.family"] = "serif"
 
 class LatticeVisual:
     def __init__(self, lattice, usetex=False, figsize=(7,5), dpi=240):
+        '''
+        Show the spin configuration of a lattice at a single point in time.
+
+        :param lattice: framework.lattice.Lattice instance
+        :param usetex: bool
+        :param figsize: tuple
+        :param dpi: int
+        '''
 
         if usetex:
             plt.rcParams["text.tex"] = True
