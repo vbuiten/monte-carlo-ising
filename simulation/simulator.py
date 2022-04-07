@@ -1,5 +1,5 @@
 import numpy as np
-
+import h5py
 import framework.lattice
 
 
@@ -13,6 +13,7 @@ class Simulator:
 
         beta = 1./temperature
         self.exp_minus_beta = np.exp(-beta)
+        self.temperature = temperature
 
         # define a time unit
         # we define a time unit as a full sweep of the mesh
@@ -48,18 +49,20 @@ class Simulator:
         return new_energy
 
 
-    def evolve(self, time_end):
+    def evolve(self, time_end, savefile=None):
 
         times = np.arange(self.time, time_end, self.time_per_flip)
         magnetisations = np.zeros(times.shape)
         energies = np.zeros(times.shape)
+        spins_history = np.zeros((len(times), self.lattice.size, self.lattice.size))
 
         energy = self.lattice.hamiltonian()
 
         for i, time in enumerate(times):
 
+            spins_history[i] = np.copy(self.lattice.spins)
             energies[i] = energy
-            magnetisations[i] = self.lattice.magnetisation()
+            magnetisations[i] = self.lattice.magnetisationPerSpin()
             energy = self.step(current_energy=energy)
 
             if (time - self.time) % 1 == 0:
@@ -67,5 +70,23 @@ class Simulator:
 
         print ("Simulation finished.")
         self.time = time
+
+        if isinstance(savefile, str):
+            if not savefile.endswith(".hdf5"):
+                savefile = savefile+".hdf5"
+
+            file = h5py.File(savefile, "w")
+            spins_dset = file.create_dataset("spins", data=spins_history)
+            energies_dset = file.create_dataset("energy", data=energies)
+            magnetisations_dset = file.create_dataset("avg-magnetisation", data=magnetisations)
+
+            xgrid_dset = file.create_dataset("x_grid", data=self.lattice.x_grid)
+            ygrid_dset = file.create_dataset("y_grid", data=self.lattice.y_grid)
+            times_dset = file.create_dataset("times", data=times)
+            file.attrs["temperature"] = self.temperature
+            file.attrs["size"] = self.lattice.size
+
+            file.close()
+            print ("File created at {}.".format(savefile))
 
         return times, magnetisations, energies
