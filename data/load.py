@@ -14,7 +14,7 @@ class LatticeHistory:
         dfile = h5py.File(filename, "r")
 
         dset_spins = dfile["spins"]
-        dset_energies = dfile["energy"]
+        dset_energies = dfile["avg-energy"]
         dset_magnetisations = dfile["avg-magnetisation"]
         dset_xgrid = dfile["x_grid"]
         dset_ygrid = dfile["y_grid"]

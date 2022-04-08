@@ -19,7 +19,7 @@ vis.ax.set_title("Initial Configuration")
 vis.show()
 
 sim = Simulator(lattice, temp)
-times, magnetisations, energies = sim.evolve(500, file)
+times, magnetisations, energies = sim.evolve(1000, None)
 
 fig, ax = plt.subplots(figsize=(7,5), dpi=240)
 ax.plot(times, energies, lw=.5)
@@ -36,7 +36,7 @@ ax2[0].plot(times, energies, lw=.5)
 ax2[1].plot(times, magnetisations, lw=.5)
 ax2[1].set_xlabel("Times")
 
-ax2[0].set_ylabel("Energy")
+ax2[0].set_ylabel("Energy per spin")
 ax2[1].set_ylabel("Magnetisation per spin")
 
 fig2.show()
