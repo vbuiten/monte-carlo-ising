@@ -13,16 +13,14 @@ class LatticeHistory:
 
         dfile = h5py.File(filename, "r")
 
-        dset_spins = dfile["spins"]
-        dset_energies = dfile["avg-energy"]
-        dset_magnetisations = dfile["avg-magnetisation"]
+        dset_energies = dfile["energy"]
+        dset_magnetisations = dfile["magnetisation"]
         dset_xgrid = dfile["x_grid"]
         dset_ygrid = dfile["y_grid"]
         dset_times = dfile["times"]
 
-        self.spins = np.copy(dset_spins)
         self.energies = np.copy(dset_energies)
-        self.avg_magnetisations = np.copy(dset_magnetisations)
+        self.magnetisations = np.copy(dset_magnetisations)
         self.x_grid = np.copy(dset_xgrid)
         self.y_grid = np.copy(dset_ygrid)
         self.times = np.copy(dset_times)

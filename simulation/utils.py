@@ -38,3 +38,18 @@ def normalisedCorrelationFunction(times, quantities):
     norm_corr_func = corr_func / corr_func0
 
     return norm_corr_func
+
+
+@jit(nopython=True)
+def meanAbsoluteSpin(magnetisation_per_spin):
+
+    abs_spin_per_point = np.abs(magnetisation_per_spin)
+
+    return abs_spin_per_point
+
+
+@jit(nopython=True)
+def energyPerSpin(energy, n_spins):
+    '''Obsolete'''
+
+    return energy / n_spins

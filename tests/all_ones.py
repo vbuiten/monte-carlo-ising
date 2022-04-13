@@ -8,7 +8,7 @@ import numpy as np
 from IPython import embed
 
 temp = 5.0
-N = 50
+N = 20
 
 path = r"C:\\Users\\victo\\Documents\\Uni\\COP\\"
 file = path+"ising-test.hdf5"
@@ -21,11 +21,11 @@ vis.ax.set_title("Initial Configuration")
 vis.show()
 
 sim = Simulator(lattice, temp)
-times, magnetisations, energies = sim.evolve(300, None)
+times, magnetisations, energies = sim.evolve(1000, None)
 
-after25sweeps = (times > 25)
+after50sweeps = (times > 50)
 
-corr_func_energies = correlationFunction(times[after25sweeps], magnetisations[after25sweeps])
+corr_func_energies = correlationFunction(times[after50sweeps], energies[after50sweeps])
 
 vis.update()
 vis.ax.set_title("Final Configuration")
@@ -42,9 +42,9 @@ ax2[1].set_ylabel("Magnetisation per spin")
 fig2.show()
 
 fig3, ax3 = plt.subplots(figsize=(7,5), dpi=240)
-ax3.plot(times[after25sweeps][:-1], corr_func_energies, lw=.5)
+ax3.plot(times[after50sweeps][:-1], corr_func_energies, lw=.5)
 ax3.set_xlabel("Times")
-ax3.set_ylabel("Magnetisation Correlation Function")
+ax3.set_ylabel("Energy Correlation Function")
 fig3.show()
 
 # compute correlation time

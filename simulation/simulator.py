@@ -1,6 +1,7 @@
 import numpy as np
 import h5py
 import framework.lattice
+from simulation.utils import meanAbsoluteSpin, energyPerSpin
 
 
 class Simulator:
@@ -55,13 +56,10 @@ class Simulator:
         magnetisations = np.zeros(times.shape)
         energies = np.zeros(times.shape)
 
-        #spins_history = np.zeros((len(times), self.lattice.size, self.lattice.size))
-
         energy = self.lattice.hamiltonian()
 
         for i, time in enumerate(times):
 
-            #spins_history[i] = np.copy(self.lattice.spins)
             energies[i] = energy
             magnetisations[i] = self.lattice.magnetisation()
             energy = self.step(current_energy=energy)
@@ -72,17 +70,13 @@ class Simulator:
         print ("Simulation finished.")
         self.time = time
 
-        energies_avg = energies / self.lattice.size**2
-        magnetisations_avg = magnetisations / self.lattice.size**2
-
         if isinstance(savefile, str):
             if not savefile.endswith(".hdf5"):
                 savefile = savefile+".hdf5"
 
             file = h5py.File(savefile, "w")
-            #spins_dset = file.create_dataset("spins", data=spins_history)
-            energies_dset = file.create_dataset("avg-energy", data=energies_avg)
-            magnetisations_dset = file.create_dataset("avg-magnetisation", data=magnetisations_avg)
+            energies_dset = file.create_dataset("energy", data=energies)
+            magnetisations_dset = file.create_dataset("magnetisation", data=magnetisations)
 
             xgrid_dset = file.create_dataset("x_grid", data=self.lattice.x_grid)
             ygrid_dset = file.create_dataset("y_grid", data=self.lattice.y_grid)
@@ -93,4 +87,4 @@ class Simulator:
             file.close()
             print ("File created at {}.".format(savefile))
 
-        return times, magnetisations_avg, energies_avg
+        return times, magnetisations, energies
