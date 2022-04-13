@@ -1,7 +1,7 @@
 import numpy as np
 from numba import jit
 
-@jit(nopython=True)
+@jit(nopython=True, parallel=True)
 def correlationFunction(times, quantities):
 
     t_max = times[-1]
@@ -9,18 +9,14 @@ def correlationFunction(times, quantities):
 
     print ("Computing correlation function.")
 
-    for i, time in enumerate(times[:-1]):
+    corr_func[0] = (np.sum(quantities**2) - np.sum(quantities)**2) / t_max
 
-        if i == 0:
-            term1 = np.sum(quantities**2)
-            term2 = - np.sum(quantities)**2
-        else:
-            term1 = np.sum(quantities[:-i] * quantities[i:])
-            term2 = - np.sum(quantities[:-i]) * np.sum(quantities[i:])
+    for i in range(1, len(times)-1):
 
-        prefactor = 1. / (t_max - time)
+        term1 = np.sum(quantities[:-i] * quantities[i:])
+        term2 = - np.sum(quantities[:-i]) * np.sum(quantities[i:])
 
-        corr_func[i] = prefactor * (term1 + term2)
+        corr_func[i] = (term1 + term2) / (t_max - times[i])
 
         '''
         if time % 10 == 0:
@@ -28,13 +24,13 @@ def correlationFunction(times, quantities):
             print ("First term: {} \t Second term: {} \t Prefactor: {}".format(term1, term2, prefactor))
         '''
 
-        if time % 10 == 0:
-            print ("Time:", time)
+        if times[i] % 10 == 0:
+            print ("Time:", times[i])
 
     return corr_func
 
 
-@jit(nopython=True)
+@jit(nopython=True, parallel=True)
 def normalisedCorrelationFunction(times, quantities):
 
     corr_func = correlationFunction(times, quantities)
