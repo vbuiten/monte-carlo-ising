@@ -54,13 +54,14 @@ class Simulator:
         times = np.arange(self.time, time_end, self.time_per_flip)
         magnetisations = np.zeros(times.shape)
         energies = np.zeros(times.shape)
-        spins_history = np.zeros((len(times), self.lattice.size, self.lattice.size))
+
+        #spins_history = np.zeros((len(times), self.lattice.size, self.lattice.size))
 
         energy = self.lattice.hamiltonian()
 
         for i, time in enumerate(times):
 
-            spins_history[i] = np.copy(self.lattice.spins)
+            #spins_history[i] = np.copy(self.lattice.spins)
             energies[i] = energy
             magnetisations[i] = self.lattice.magnetisation()
             energy = self.step(current_energy=energy)
@@ -79,7 +80,7 @@ class Simulator:
                 savefile = savefile+".hdf5"
 
             file = h5py.File(savefile, "w")
-            spins_dset = file.create_dataset("spins", data=spins_history)
+            #spins_dset = file.create_dataset("spins", data=spins_history)
             energies_dset = file.create_dataset("avg-energy", data=energies_avg)
             magnetisations_dset = file.create_dataset("avg-magnetisation", data=magnetisations_avg)
 

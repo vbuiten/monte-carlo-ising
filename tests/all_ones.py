@@ -1,12 +1,13 @@
 '''Algorithm test: what happens if we start in a state where each spin is +1?'''
 from framework.lattice import Lattice
 from simulation.simulator import Simulator
-from simulation.utils import normalisedCorrelationFunction
+from simulation.utils import normalisedCorrelationFunction, correlationFunction
 from analysis.visualisation import LatticeVisual
 import matplotlib.pyplot as plt
 import numpy as np
+from IPython import embed
 
-temp = 1.0
+temp = 5.0
 N = 50
 
 path = r"C:\\Users\\victo\\Documents\\Uni\\COP\\"
@@ -22,8 +23,9 @@ vis.show()
 sim = Simulator(lattice, temp)
 times, magnetisations, energies = sim.evolve(300, None)
 
-after100sweeps = (times > 25)
-corr_func_energies = normalisedCorrelationFunction(times[after100sweeps], energies[after100sweeps])
+after25sweeps = (times > 25)
+
+corr_func_energies = correlationFunction(times[after25sweeps], magnetisations[after25sweeps])
 
 vis.update()
 vis.ax.set_title("Final Configuration")
@@ -40,12 +42,13 @@ ax2[1].set_ylabel("Magnetisation per spin")
 fig2.show()
 
 fig3, ax3 = plt.subplots(figsize=(7,5), dpi=240)
-ax3.plot(times[after100sweeps][:-1], corr_func_energies, lw=.5)
+ax3.plot(times[after25sweeps][:-1], corr_func_energies, lw=.5)
 ax3.set_xlabel("Times")
-ax3.set_ylabel("Energy Correlation Function")
+ax3.set_ylabel("Magnetisation Correlation Function")
 fig3.show()
 
 # compute correlation time
 timestep = times[1] - times[0]
-corr_time = timestep * np.sum(corr_func_energies)
+positive = corr_func_energies > 0
+corr_time = timestep * np.sum(corr_func_energies/corr_func_energies[0])
 print ("Correlation time: {}".format(corr_time))

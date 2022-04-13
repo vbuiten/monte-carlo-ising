@@ -9,11 +9,22 @@ def correlationFunction(times, quantities):
 
     for i, time in enumerate(times[:-1]):
 
-        term1 = np.sum(quantities[:-1-i] * quantities[1+i:])
-        term2 = - np.sum(quantities[:-1-i]) * np.sum(quantities[1+i:])
+        if i == 0:
+            term1 = np.sum(quantities**2)
+            term2 = - np.sum(quantities)**2
+        else:
+            term1 = np.sum(quantities[:-i] * quantities[i:])
+            term2 = - np.sum(quantities[:-i]) * np.sum(quantities[i:])
+
         prefactor = 1. / (t_max - time)
 
         corr_func[i] = prefactor * (term1 + term2)
+
+        '''
+        if time % 10 == 0:
+            print ("Time: {} \t Correlation function: {}".format(time, corr_func[i]))
+            print ("First term: {} \t Second term: {} \t Prefactor: {}".format(term1, term2, prefactor))
+        '''
 
     return corr_func
 
