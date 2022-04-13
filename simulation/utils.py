@@ -7,6 +7,8 @@ def correlationFunction(times, quantities):
     t_max = times[-1]
     corr_func = np.zeros(len(times)-1)
 
+    print ("Computing correlation function.")
+
     for i, time in enumerate(times[:-1]):
 
         if i == 0:
@@ -25,6 +27,9 @@ def correlationFunction(times, quantities):
             print ("Time: {} \t Correlation function: {}".format(time, corr_func[i]))
             print ("First term: {} \t Second term: {} \t Prefactor: {}".format(term1, term2, prefactor))
         '''
+
+        if time % 10 == 0:
+            print ("Time:", time)
 
     return corr_func
 
