@@ -12,7 +12,7 @@ path = basepath + "ising-series\\"
 
 for i, temp in enumerate(temps):
 
-    file = path + "temp{}.hdf5".format(temp)
+    file = path + "temp{}.hdf5".format(np.around(temp,2))
     lattice = Lattice(N)
     lattice.spins = np.ones((N,N))
 

@@ -52,6 +52,16 @@ class EvolutionPlotBase:
         return history
 
 
+    def show(self):
+
+        self.fig.show()
+
+
+    def save(self, filename):
+
+        self.fig.savefig(filename)
+
+
 class MagnetisationPlotter(EvolutionPlotBase):
     def __init__(self, histories, usetex=False):
 
@@ -74,16 +84,31 @@ class MagnetisationPlotter(EvolutionPlotBase):
     def plot(self):
 
         for i, el in enumerate(self.magnetisations):
-            self.ax.plot(self.times, el, lw=.5, alpha=.8, label="$T =$ {}".format(self.temperatures[i]))
+            self.ax.plot(self.times, el, lw=.5, alpha=.8, label="$T =$ {}".format(np.around(self.temperatures[i], 2)))
 
         self.ax.legend()
 
 
-    def show(self):
+class EnergyPlotter(EvolutionPlotBase):
+    def __init__(self, histories, usetex=False):
+        super(EnergyPlotter, self).__init__(histories, usetex)
 
-        self.fig.show()
+        energies = np.array([history.energies for history in self.histories])
+        self.energies = energies / self.size**2
+
+        self.fig.suptitle("Evolution of Energy Per Spin")
+        self.ax.set_ylabel("Energy per spin")
 
 
-    def save(self, filename):
+    def addHistory(self, history):
 
-        self.fig.savefig(filename)
+        history = self._addHistory(history)
+        self.energies = np.append(self.energies, history.energies / self.size**2, axis=0)
+
+
+    def plot(self):
+
+        for i, el in enumerate(self.energies):
+            self.ax.plot(self.times, el, lw=.5, alpha=.8, label="$T =$ {}".format(np.around(self.temperatures[i], 2)))
+
+        self.ax.legend()
