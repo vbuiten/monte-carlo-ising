@@ -2,6 +2,7 @@
 
 import h5py
 import numpy as np
+import os
 
 class LatticeHistory:
     def __init__(self, filename):
@@ -29,3 +30,24 @@ class LatticeHistory:
         self.size = dfile.attrs["size"]
 
         dfile.close()
+
+
+class LatticeHistories:
+    def __init__(self, directory):
+        '''
+        Load all simulation data files that exist in a given directory, and make a list of corresponding
+        LatticeHistory instances.
+
+        :param directory: str
+                Directory in which the simulation data are stored. No other .hdf5 files can be present in the folder.
+        '''
+
+        files_list = os.listdir(directory)
+        self.histories = []
+
+        for i, f in enumerate(files_list):
+            if f.endswith(".hdf5"):
+                history = LatticeHistory(directory+f)
+                self.histories.append(history)
+
+        self.directory = directory

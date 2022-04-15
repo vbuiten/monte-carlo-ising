@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 #from IPython import embed
 
-temp = 2.7
-N = 20
+temp = 2.0
+N = 50
 
 path = r"C:\\Users\\victo\\Documents\\Uni\\COP\\"
 file = path+"ising-test.hdf5"
@@ -21,11 +21,11 @@ vis.ax.set_title("Initial Configuration")
 vis.show()
 
 sim = Simulator(lattice, temp)
-times, magnetisations, energies = sim.evolve(1000, None)
+times, magnetisations, energies = sim.evolve(100, None)
 
-after50sweeps = (times > 50)
+after30sweeps = (times > 30.)
 
-#corr_func_energies = correlationFunction(times[after50sweeps], energies[after50sweeps])
+corr_func_magnetisation = correlationFunction(times[after30sweeps], magnetisations[after30sweeps])
 
 vis.update()
 vis.ax.set_title("Final Configuration")
@@ -36,22 +36,19 @@ ax2[0].plot(times, energies, lw=.5)
 ax2[1].plot(times, magnetisations, lw=.5)
 ax2[1].set_xlabel("Times")
 
-ax2[0].set_ylabel("Energy per spin")
-ax2[1].set_ylabel("Magnetisation per spin")
+ax2[0].set_ylabel("Energy")
+ax2[1].set_ylabel("Magnetisation")
 
 fig2.show()
 
-"""
 fig3, ax3 = plt.subplots(figsize=(7,5), dpi=240)
-ax3.plot(times[after50sweeps][:-1], corr_func_energies, lw=.5)
+ax3.plot(times[after30sweeps][:-1], corr_func_magnetisation, lw=.5)
 ax3.set_xlabel("Times")
 ax3.set_ylabel("Energy Correlation Function")
 fig3.show()
-"""
 # compute correlation time
-""""
+
 timestep = times[1] - times[0]
-positive = corr_func_energies > 0
-corr_time = timestep * np.sum(corr_func_energies/corr_func_energies[0])
+positive = corr_func_magnetisation > 0
+corr_time = timestep * np.sum(corr_func_magnetisation/corr_func_magnetisation[0])
 print ("Correlation time: {}".format(corr_time))
-"""
