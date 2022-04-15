@@ -5,18 +5,19 @@ from numba import jit
 def correlationFunction(times, quantities):
 
     t_max = times[-1]
+
     corr_func = np.zeros(len(times)-1)
 
     print ("Computing correlation function.")
 
-    corr_func[0] = (np.sum(quantities**2) - np.sum(quantities)**2) / t_max
+    corr_func[0] = np.sum(quantities**2) / (t_max - times[0]) - np.sum(quantities)**2 / ((t_max - times[0])**2)
 
     for i in range(1, len(times)-1):
 
         term1 = np.sum(quantities[:-i] * quantities[i:])
         term2 = - np.sum(quantities[:-i]) * np.sum(quantities[i:])
 
-        corr_func[i] = (term1 + term2) / (t_max - times[i])
+        corr_func[i] = term1 / (t_max - times[i]) + term2 / ((t_max - times[i])**2)
 
         '''
         if time % 10 == 0:

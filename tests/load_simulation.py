@@ -2,11 +2,12 @@
 
 from data.load import LatticeHistory
 from analysis.utils import *
-from simulation.utils import correlationFunction
+from simulation.utils import correlationFunction, normalisedCorrelationFunction
 import numpy as np
 import matplotlib.pyplot as plt
 
-path = r"/net/vdesk/data2/buiten/COP/"
+#path = r"/net/vdesk/data2/buiten/COP/"
+path = "C:\\Users\\victo\\Documents\\Uni\\COP\\"
 file = path + "ising-test.hdf5"
 history = LatticeHistory(file)
 
@@ -25,20 +26,22 @@ for ax in ax2:
 fig2.show()
 
 # compute the correlation functions for energy and magnetisation
-after50sweeps = history.times > 20.
-before100sweeps = history.times < 100.
-goodtimes = after50sweeps & before100sweeps
+after30sweeps = history.times > 30.
+before80sweeps = history.times < 80.
+goodtimes = after30sweeps & before80sweeps
 
-corr_func_energy = correlationFunction(history.times[goodtimes], history.energies[goodtimes]/history.size**2)
-corr_func_magnetisation = correlationFunction(history.times[goodtimes],
-                                              history.magnetisations[goodtimes]/history.size**2)
+corr_func_energy = normalisedCorrelationFunction(history.times[after30sweeps], history.energies[after30sweeps]/history.size**2)
+corr_func_magnetisation = normalisedCorrelationFunction(history.times[after30sweeps],
+                                              history.magnetisations[after30sweeps]/history.size**2)
+
+goodcorrtimes = history.times[after30sweeps][:-1] < 80.
 
 fig, ax = plt.subplots(figsize=(7,10), dpi=240, nrows=2, sharex=True)
-ax[0].plot(history.times[goodtimes][:-1], corr_func_energy, lw=1.)
-ax[1].plot(history.times[goodtimes][:-1], corr_func_magnetisation, lw=1.)
+ax[0].plot(history.times[goodtimes], corr_func_energy[goodcorrtimes], lw=1.)
+ax[1].plot(history.times[goodtimes], corr_func_magnetisation[goodcorrtimes], lw=1.)
 ax[1].set_xlabel("Times")
-ax[0].set_ylabel("Energy Correlation Function")
-ax[1].set_ylabel("Magnetisation Correlation Function")
+ax[0].set_ylabel("Normalised Energy Correlation Function")
+ax[1].set_ylabel("Normalised Magnetisation Correlation Function")
 
 for axis in ax:
     axis.grid()

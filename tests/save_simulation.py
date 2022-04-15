@@ -8,7 +8,8 @@ import numpy as np
 temp = 5.0
 N = 50
 
-path = r"/net/vdesk/data2/buiten/COP/"
+#path = r"/net/vdesk/data2/buiten/COP/"
+path = "C:\\Users\\victo\\Documents\\Uni\\COP\\"
 file = path+"ising-test.hdf5"
 
 lattice = Lattice(N)
@@ -19,7 +20,7 @@ vis.ax.set_title("Initial Configuration")
 vis.show()
 
 sim = Simulator(lattice, temp)
-times, magnetisations, energies = sim.evolve(1000, file)
+times, magnetisations, energies = sim.evolve(100, file)
 
 vis.update()
 vis.ax.set_title("Final Configuration")
