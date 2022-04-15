@@ -17,6 +17,6 @@ for i, temp in enumerate(temps):
     lattice.spins = np.ones((N,N))
 
     sim = Simulator(lattice, temp)
-    times, magnetisations, energies = sim.evolve(100, file)
+    times, magnetisations, energies = sim.evolve(500, file)
 
     print ("Finished simulation {}".format(i+1))

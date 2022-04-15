@@ -42,6 +42,17 @@ def normalisedCorrelationFunction(times, quantities):
     return norm_corr_func
 
 
+@jit(nopython=True, parallel=True)
+def correlationTime(times, quantities):
+
+    norm_corr_func = normalisedCorrelationFunction(times, quantities)
+    timestep = times[1] - times[0]
+    positive = norm_corr_func > 0
+    corr_time = times[0] + timestep * np.sum(norm_corr_func[positive] / norm_corr_func[0])
+
+    return corr_time
+
+
 @jit(nopython=True)
 def meanAbsoluteSpin(magnetisation_per_spin):
 
