@@ -50,6 +50,69 @@ class Simulator:
         return new_energy
 
 
+    def equilibrate(self, threshold=0.9, sweeps=10, reject_rate_threshold=1e-3):
+        '''
+        Bring the system into equilibrium using a rejection rate stability criterion.
+
+        :param threshold:
+        :param sweeps: int
+                Number of sweeps after which the rejection rate is checked and reset.
+        :param reject_rate_threshold: float
+                Threshold for the absolute difference between rejection rates.
+                If the difference in rejection rates is smaller than this number, the equilibration stops.
+        :return: times: ndarray of shape (n_times,)
+                Times used in the equilibration process
+                magnetisations: ndarray of shape (n_times,)
+                Total magnetisation of the lattice at each point in time.
+        '''
+
+        old_energy = self.lattice.hamiltonian()
+        times = np.array([])
+        magnetisations = np.array([])
+        time = 0.
+        rejected = 0
+        rejection_rate = 1e-8
+        rejection_rate_diff = 1.
+        full_sweep = False
+
+        # simulate until the rejection rate per sweep reaches the threshold
+        #while (rejection_rate < threshold) or (not full_sweep):
+        while (abs(rejection_rate_diff) > reject_rate_threshold) or not full_sweep:
+
+            # reset the counter after one full sweep
+            if (np.around(time, 8) % sweeps == 0.) and (time != 0):
+                print("Time:", time)
+
+                new_rejection_rate = rejected / (sweeps * self.lattice.size**2)
+                print ("Rejection rate:", new_rejection_rate)
+                rejection_rate_diff = new_rejection_rate - rejection_rate
+                print ("Rejection rate difference:", rejection_rate_diff)
+
+                rejection_rate = float(np.copy(new_rejection_rate))
+
+                rejected = 0
+                full_sweep = True
+
+            else:
+                full_sweep = False
+
+            times = np.append(times, time)
+            magnetisations = np.append(magnetisations, self.lattice.magnetisation())
+
+            energy = self.step(current_energy=old_energy)
+
+            # if the new state is rejected, add to the counter
+            if energy == old_energy:
+                rejected += 1
+
+            old_energy = float(np.copy(energy))
+            time += self.time_per_flip
+
+        print ("Equilibration finished.")
+
+        return times, magnetisations
+
+
     def evolve(self, time_end, savefile=None):
 
         times = np.arange(self.time, time_end, self.time_per_flip)
