@@ -21,11 +21,10 @@ vis.ax.set_title("Initial Configuration")
 vis.show()
 
 sim = Simulator(lattice, temp)
+sim.equilibrate(reject_rate_threshold=5e-3)
 times, magnetisations, energies = sim.evolve(100, None)
 
-after30sweeps = (times > 30.)
-
-corr_func_magnetisation = correlationFunction(times[after30sweeps], magnetisations[after30sweeps])
+corr_func_magnetisation = correlationFunction(times, magnetisations)
 
 vis.update()
 vis.ax.set_title("Final Configuration")
@@ -42,7 +41,7 @@ ax2[1].set_ylabel("Magnetisation")
 fig2.show()
 
 fig3, ax3 = plt.subplots(figsize=(7,5), dpi=240)
-ax3.plot(times[after30sweeps][:-1], corr_func_magnetisation, lw=.5)
+ax3.plot(times[:-1], corr_func_magnetisation, lw=.5)
 ax3.set_xlabel("Times")
 ax3.set_ylabel("Energy Correlation Function")
 fig3.show()

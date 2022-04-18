@@ -43,12 +43,20 @@ def normalisedCorrelationFunction(times, quantities):
 
 
 @jit(nopython=True, parallel=True)
+def correlationTimeFromCorrelationFunction(times, normalised_corr_func):
+
+    timestep = times[1] - times[0]
+    positive = normalised_corr_func > 0
+    corr_time = times[0] + timestep * np.sum(normalised_corr_func[positive])
+
+    return corr_time
+
+
+@jit(nopython=True, parallel=True)
 def correlationTime(times, quantities):
 
     norm_corr_func = normalisedCorrelationFunction(times, quantities)
-    timestep = times[1] - times[0]
-    positive = norm_corr_func > 0
-    corr_time = times[0] + timestep * np.sum(norm_corr_func[positive] / norm_corr_func[0])
+    corr_time = correlationTimeFromCorrelationFunction(times, norm_corr_func)
 
     return corr_time
 
