@@ -7,8 +7,8 @@ from matplotlib.ticker import AutoMinorLocator
 import numpy as np
 plt.rcParams["font.family"] = "serif"
 
-temp = 1.0
-N = 20
+temp = 2.6
+N = 50
 
 lattice = Lattice(N)
 lattice.spins = np.ones((N,N))
@@ -27,7 +27,7 @@ ax.grid(which="major")
 fig.show()
 
 # now do a test run for estimating the correlation time
-test_time_end = 500
+test_time_end = 1000
 times_test, magnetisations_test, energies_test = sim.evolve(test_time_end)
 
 fig2, ax2 = plt.subplots(figsize=(7,5), dpi=240)
@@ -43,6 +43,7 @@ fig2.show()
 # compute the correlation function
 norm_corr_func = normalisedCorrelationFunction(times_test, magnetisations_test)
 corr_time = correlationTimeFromCorrelationFunction(times_test, norm_corr_func)
+print ("Estimated correlation time:", corr_time)
 before80percent = times_test[:-1] < 0.8*test_time_end
 
 fig3, ax3 = plt.subplots(figsize=(7,5), dpi=240)
@@ -56,7 +57,7 @@ ax3.grid(which="major")
 fig3.show()
 
 # now run a long simulation with block measurements
-n_it = 20
+n_it = 50
 susceptibilities = np.zeros(n_it)
 specific_heats = np.zeros(n_it)
 
