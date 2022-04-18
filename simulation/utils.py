@@ -46,8 +46,9 @@ def normalisedCorrelationFunction(times, quantities):
 def correlationTimeFromCorrelationFunction(times, normalised_corr_func):
 
     timestep = times[1] - times[0]
-    positive = normalised_corr_func > 0
-    corr_time = times[0] + timestep * np.sum(normalised_corr_func[positive][1:] - normalised_corr_func[positive][:-1])
+    idx_first_negative = np.argwhere(normalised_corr_func < 0)[0]
+    #good_indices = [i for i in range(idx_first_negative)]
+    corr_time = times[0] + timestep * np.sum(normalised_corr_func[1:idx_first_negative] - normalised_corr_func[:idx_first_negative-1])
 
     return corr_time
 

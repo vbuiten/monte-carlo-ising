@@ -131,7 +131,7 @@ class Simulator:
                 print ("Time: {}".format(time))
 
         print ("Simulation finished.")
-        self.time = time
+        self.time = times[-1]
 
         if isinstance(savefile, str):
             if not savefile.endswith(".hdf5"):
