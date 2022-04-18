@@ -29,6 +29,12 @@ class LatticeHistory:
         self.temperature = dfile.attrs["temperature"]
         self.size = dfile.attrs["size"]
 
+        try:
+            self.correlation_time = dfile.attrs["correlation-time"]
+        except:
+            print ("No correlation time found in file. Setting correlation time to None.")
+            self.correlation_time = None
+
         dfile.close()
 
 

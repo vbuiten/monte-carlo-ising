@@ -113,7 +113,7 @@ class Simulator:
         return times, magnetisations
 
 
-    def evolve(self, time_end, savefile=None):
+    def evolve(self, time_end, savefile=None, correlation_time=None):
 
         times = np.arange(self.time, time_end, self.time_per_flip)
         magnetisations = np.zeros(times.shape)
@@ -146,6 +146,9 @@ class Simulator:
             times_dset = file.create_dataset("times", data=times)
             file.attrs["temperature"] = self.temperature
             file.attrs["size"] = self.lattice.size
+
+            if correlation_time is not None:
+                file.attrs["correlation-time"] = correlation_time
 
             file.close()
             print ("File created at {}.".format(savefile))
