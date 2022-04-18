@@ -2,12 +2,13 @@ from framework.lattice import Lattice
 from simulation.simulator import Simulator
 from simulation.utils import normalisedCorrelationFunction, correlationTimeFromCorrelationFunction
 from analysis.utils import magneticSusceptibility, specificHeatPerSpin
+from analysis.observables import Measurer
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 import numpy as np
 plt.rcParams["font.family"] = "serif"
 
-temp = 2.6
+temp = 1.0
 N = 50
 
 lattice = Lattice(N)
@@ -27,7 +28,7 @@ ax.grid(which="major")
 fig.show()
 
 # now do a test run for estimating the correlation time
-test_time_end = 1000
+test_time_end = 200
 times_test, magnetisations_test, energies_test = sim.evolve(test_time_end)
 
 fig2, ax2 = plt.subplots(figsize=(7,5), dpi=240)
@@ -58,6 +59,13 @@ fig3.show()
 
 # now run a long simulation with block measurements
 n_it = 50
+times, magnetisations, energies = sim.evolve(sim.time+n_it*16*corr_time)
+measurer = Measurer(None, times, magnetisations, energies, corr_time, N, temp)
+abs_spins, mean_abs_spin, std_abs_spin = measurer.meanAbsoluteSpin()
+energies_per_spin, mean_energy_per_spin, std_energy_per_spin = measurer.energyPerSpin()
+susceptibilities, mean_susceptibility, std_susceptibility = measurer.magneticSusceptibility()
+specific_heats, mean_specific_heat, std_specific_heat = measurer.specificHeatPerSpin()
+'''
 susceptibilities = np.zeros(n_it)
 specific_heats = np.zeros(n_it)
 
@@ -72,23 +80,38 @@ mean_susceptibility = np.mean(susceptibilities)
 std_susceptibility = np.std(susceptibilities)
 mean_specific_heat = np.mean(specific_heats)
 std_specific_heat = np.std(specific_heats)
+'''
 
-fig4, ax4 = plt.subplots(figsize=(7,10), dpi=240, nrows=2)
-ax4[0].hist(susceptibilities, bins="sqrt")
-ax4[0].axvline(mean_susceptibility, color="black", ls="--", label="Mean")
-ax4[0].axvline(mean_susceptibility-std_susceptibility, color="black", ls=":", label="Standard deviation")
-ax4[0].axvline(mean_susceptibility+std_susceptibility, color="black", ls=":")
-ax4[0].set_xlabel(r"$\chi_M$")
-ax4[0].set_title("Magnetic Susceptibility")
+fig4, ax4 = plt.subplots(figsize=(10,10), dpi=240, nrows=2, ncols=2, sharey=True)
+ax4[0,0].hist(susceptibilities, bins="sqrt")
+ax4[0,0].axvline(mean_susceptibility, color="black", ls="--", label="Mean")
+ax4[0,0].axvline(mean_susceptibility-std_susceptibility, color="black", ls=":", label="Standard deviation")
+ax4[0,0].axvline(mean_susceptibility+std_susceptibility, color="black", ls=":")
+ax4[0,0].set_xlabel(r"$\chi_M$")
+ax4[0,0].set_title("Magnetic Susceptibility")
+ax4[0,0].set_ylabel("Occurrences")
 
-ax4[1].hist(specific_heats, bins="sqrt")
-ax4[1].axvline(mean_specific_heat, color="black", ls="--", label="Mean")
-ax4[1].axvline(mean_specific_heat-std_specific_heat, color="black", ls=":", label="Standard deviation")
-ax4[1].axvline(mean_specific_heat+std_specific_heat, color="black", ls=":")
-ax4[1].set_xlabel(r"$C$")
-ax4[1].set_title("Specific Heat Per Spin")
+ax4[1,0].hist(specific_heats, bins="sqrt")
+ax4[1,0].axvline(mean_specific_heat, color="black", ls="--", label="Mean")
+ax4[1,0].axvline(mean_specific_heat-std_specific_heat, color="black", ls=":", label="Standard deviation")
+ax4[1,0].axvline(mean_specific_heat+std_specific_heat, color="black", ls=":")
+ax4[1,0].set_xlabel(r"$C$")
+ax4[1,0].set_title("Specific Heat Per Spin")
+ax4[1,0].set_ylabel("Occurrences")
 
-for el in ax4:
-    el.set_ylabel("Occurrences")
+ax4[0,1].hist(abs_spins, bins="sqrt")
+ax4[0,1].axvline(mean_abs_spin, color="black", ls="--", label="Mean")
+ax4[0,1].axvline(mean_abs_spin-std_abs_spin, color="black", ls=":", label="Standard deviation")
+ax4[0,1].axvline(mean_abs_spin+std_abs_spin, color="black", ls=":")
+ax4[0,1].set_xlabel(r"$<|m|>$")
+ax4[0,1].set_title("Mean Absolute Spin")
+ax4[0,1].legend()
+
+ax4[1,1].hist(energies_per_spin, bins="sqrt")
+ax4[1,1].axvline(mean_energy_per_spin, color="black", ls="--", label="Mean")
+ax4[1,1].axvline(mean_energy_per_spin-std_abs_spin, color="black", ls=":", label="Standard deviation")
+ax4[1,1].axvline(mean_energy_per_spin+std_abs_spin, color="black", ls=":")
+ax4[1,1].set_xlabel(r"$E / N^2$")
+ax4[1,1].set_title("Energy Per Spin")
 
 fig4.show()

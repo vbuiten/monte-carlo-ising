@@ -77,3 +77,14 @@ def specificHeatPerSpin(total_energy, linear_size, temperature):
     specific_heat = prefactor * ( np.mean(total_energy**2) - np.mean(total_energy)**2 )
 
     return specific_heat
+
+
+@jit(nopython=True)
+def thermalAveragingStandardDeviation(times, quantities, correlation_time):
+
+    t_max = times[-1]
+    prefactor = 2 * correlation_time / t_max
+    variance = prefactor * ( np.mean(quantities**2) - np.mean(quantities)**2 )
+    std = np.sqrt(variance)
+
+    return std

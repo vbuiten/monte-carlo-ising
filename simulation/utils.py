@@ -1,5 +1,6 @@
 import numpy as np
 from numba import jit
+from IPython import embed
 
 @jit(nopython=True, parallel=True)
 def correlationFunction(times, quantities):
@@ -42,13 +43,13 @@ def normalisedCorrelationFunction(times, quantities):
     return norm_corr_func
 
 
-@jit(nopython=True, parallel=True)
+@jit(nopython=True)
 def correlationTimeFromCorrelationFunction(times, normalised_corr_func):
 
     timestep = times[1] - times[0]
-    idx_first_negative = np.argwhere(normalised_corr_func < 0)[0]
-    #good_indices = [i for i in range(idx_first_negative)]
-    corr_time = times[0] + timestep * np.sum(normalised_corr_func[1:idx_first_negative] - normalised_corr_func[:idx_first_negative-1])
+    indices_negative = np.argwhere(normalised_corr_func < 0)
+    idx_first_negative = indices_negative[0,0]
+    corr_time = times[0] + timestep * -np.sum(normalised_corr_func[1:idx_first_negative] - normalised_corr_func[:idx_first_negative-1])
 
     return corr_time
 
