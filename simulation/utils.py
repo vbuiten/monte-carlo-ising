@@ -77,6 +77,7 @@ def correlationTime(times, quantities):
 
 @jit(nopython=True)
 def meanAbsoluteSpin(magnetisation_per_spin):
+    '''Obsolete'''
 
     abs_spin_per_point = np.abs(magnetisation_per_spin)
 

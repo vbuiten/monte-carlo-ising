@@ -57,3 +57,4 @@ class LatticeHistories:
                 self.histories.append(history)
 
         self.directory = directory
+        self.n_histories = len(files_list)

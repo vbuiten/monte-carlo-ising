@@ -2,7 +2,7 @@
 
 import numpy as np
 from analysis.utils import *
-from data.load import LatticeHistory
+from data.load import LatticeHistory, LatticeHistories
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 plt.rcParams["font.family"] = "serif"
@@ -205,3 +205,76 @@ class ObservablePlotter(Measurer):
             self.fig.savefig(filename, bbox_inches="tight")
         else:
             self.fig.savefig(filename)
+
+
+class DirectoryMeasurer(LatticeHistories):
+    def __init__(self, directory, usetex=False):
+
+        plt.rcParams["text.usetex"] = usetex
+
+        super(DirectoryMeasurer, self).__init__(directory)
+
+        self.temperatures = np.array([history.temperature for history in self.histories])
+        self.measurers = [Measurer(history) for history in self.histories]
+
+        # save all means and standard deviations
+        self.corr_times = np.zeros(self.n_histories)
+        self.abs_spin_means = np.zeros(self.n_histories)
+        self.abs_spin_stds = np.zeros(self.n_histories)
+        self.energy_per_spin_means = np.zeros(self.n_histories)
+        self.energy_per_spin_stds = np.zeros(self.n_histories)
+        self.susc_means = np.zeros(self.n_histories)
+        self.susc_stds = np.zeros(self.n_histories)
+        self.spec_heat_means = np.zeros(self.n_histories)
+        self.spec_heat_stds = np.zeros(self.n_histories)
+
+        for i, (history, measurer) in enumerate(zip(self.histories, self.measurers)):
+            self.corr_times[i] = history.correlation_time
+            _, self.abs_spin_means[i], self.abs_spin_stds[i] = measurer.meanAbsoluteSpin()
+            _, self.energy_per_spin_means[i], self.energy_per_spin_stds[i] = measurer.energyPerSpin()
+            _, self.susc_means[i], self.susc_stds[i] = measurer.magneticSusceptibility()
+            _, self.spec_heat_means[i], self.spec_heat_stds[i] = measurer.specificHeatPerSpin()
+
+
+    def plotCorrelationTimes(self, figsize=(6,4), dpi=240):
+
+        fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+        ax.plot(self.temperatures, self.corr_times, marker="s", ls="")
+        ax.set_xlabel(r"Temperature $T$")
+        ax.set_ylabel(r"Correlation time $\tau$")
+        ax.xaxis.set_minor_locator(AutoMinorLocator(5))
+        ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+        fig.suptitle("Correlation Time vs. Temperature")
+        fig.show()
+
+        return fig, ax
+
+
+    def plotAbsSpins(self, figsize=(6,4), dpi=240):
+
+        fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+        ax.errorbar(self.temperatures, self.abs_spin_means, yerr=self.abs_spin_stds,
+                    capsize=3, marker=".")
+        ax.set_xlabel(r"Temperature $T$")
+        ax.set_ylabel(r"Mean absolute spin $<|m|>$")
+        ax.xaxis.set_minor_locator(AutoMinorLocator(5))
+        ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+        fig.suptitle("Mean Absolute Spin vs. Temperature")
+        fig.show()
+
+        return fig, ax
+
+
+    def plotEnergyPerSpin(self, figsize=(6,4), dpi=240):
+
+        pass
+
+
+    def plotMagneticSusceptibility(self, figsize=(6,4), dpi=240):
+
+        pass
+
+
+    def plotSpecificHeat(self, figsize=(6,4), dpi=240):
+
+        pass
