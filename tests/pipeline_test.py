@@ -2,13 +2,13 @@ from framework.lattice import Lattice
 from simulation.simulator import Simulator
 from simulation.utils import normalisedCorrelationFunction, correlationTimeFromCorrelationFunction
 from analysis.utils import magneticSusceptibility, specificHeatPerSpin
-from analysis.observables import Measurer
+from analysis.observables import Measurer, ObservablePlotter
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator
 import numpy as np
 plt.rcParams["font.family"] = "serif"
 
-temp = 1.6
+temp = 4.0
 N = 50
 
 lattice = Lattice(N)
@@ -61,8 +61,14 @@ ax3.grid(which="major")
 fig3.show()
 
 # now run a long simulation with block measurements
-n_it = 50
+n_it = 100
 times, magnetisations, energies = sim.evolve(sim.time+n_it*16*corr_time)
+
+plotter = ObservablePlotter(None, times, magnetisations, energies, corr_time, N, temp)
+plotter.plot()
+plotter.show()
+
+'''
 measurer = Measurer(None, times, magnetisations, energies, corr_time, N, temp)
 abs_spins, mean_abs_spin, std_abs_spin = measurer.meanAbsoluteSpin()
 energies_per_spin, mean_energy_per_spin, std_energy_per_spin = measurer.energyPerSpin()
@@ -103,3 +109,4 @@ ax4[1,1].set_title("Energy Per Spin")
 
 fig4.suptitle("Measurements for $T =$"+str(temp))
 fig4.show()
+'''

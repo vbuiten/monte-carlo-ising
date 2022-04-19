@@ -3,6 +3,9 @@
 import numpy as np
 from analysis.utils import *
 from data.load import LatticeHistory
+import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
+plt.rcParams["font.family"] = "serif"
 
 class Measurer:
     def __init__(self,
@@ -58,8 +61,8 @@ class Measurer:
             raise TypeError("No correlation time found!")
 
         # divide times up in intervals of 1 sweep or 16 correlation times
-        self.indices_sweep = np.argwhere(np.around(times - times[0], 3) % 1 == 0)[:,0]
-        self.indices_16tau = np.argwhere(np.around(times - times[0], 3) % 16 * self.correlation_time == 0)[:,0]
+        self.indices_sweep = np.argwhere(np.around(times - times[0], 4) % 1 == 0)[:,0]
+        self.indices_16tau = np.argwhere(np.around(times - times[0], 4) % 16 * self.correlation_time == 0)[:,0]
 
         print ("Indices marking full sweeps:", self.indices_sweep)
         print (r"Indices marking $16\tau$ blocks:", self.indices_16tau)
@@ -119,3 +122,86 @@ class Measurer:
         std = np.std(specific_heats)
 
         return specific_heats, mean, std
+
+
+class ObservablePlotter(Measurer):
+    def __init__(self,
+                 history=None,
+                 times=None,
+                 magnetisations=None,
+                 energies=None,
+                 correlation_time=None,
+                 lattice_size=None,
+                 temperature=None,
+                 usetex=False,
+                 figsize=(8,8),
+                 dpi=240):
+
+        super(ObservablePlotter, self).__init__(history, times, magnetisations, energies,
+                                                correlation_time, lattice_size, temperature)
+
+        self.abs_spins, self.abs_spin_mean, self.abs_spin_std = self.meanAbsoluteSpin()
+        self.energies_per_spin, self.energy_per_spin_mean, self.energy_per_spin_std = self.energyPerSpin()
+        self.susceptibilities, self.susceptibility_mean, self.susceptibility_std = self.magneticSusceptibility()
+        self.specific_heats, self.specific_heat_mean, self.specific_heat_std = self.specificHeatPerSpin()
+
+        plt.rcParams["text.usetex"] = usetex
+
+        self.fig, self.ax = plt.subplots(nrows=2, ncols=2, figsize=figsize, dpi=dpi, sharey=True)
+
+        self.ax[0,0].set_title("Mean Absolute Spin")
+        self.ax[0,1].set_title("Magnetic Susceptibility")
+        self.ax[1,0].set_title("Energy Per Spin")
+        self.ax[1,1].set_title("Specific Heat Per Spin")
+
+        self.ax[0,0].set_xlabel(r"$<|m|>$")
+        self.ax[0,1].set_xlabel(r"$\chi_M$")
+        self.ax[1,0].set_xlabel(r"$E / N^2$")
+        self.ax[1,1].set_xlabel(r"$C$")
+
+        for i in range(2):
+            self.ax[i,0].set_ylabel(r"Occurrences")
+
+            for j in range(2):
+                self.ax[i,j].xaxis.set_minor_locator(AutoMinorLocator(5))
+                self.ax[i,j].yaxis.set_minor_locator(AutoMinorLocator(5))
+
+        self.fig.suptitle("Measurements for Temperature $T =$ "+str(np.around(self.temperature,2)))
+
+
+    def plot(self, bins=10):
+
+        self.ax[0,0].hist(self.abs_spins, bins=bins)
+        self.ax[0,0].axvline(self.abs_spin_mean, color="black", ls="--", label="Mean")
+        self.ax[0,0].axvline(self.abs_spin_mean-self.abs_spin_std, color="red", ls=":", label="Standard deviation")
+        self.ax[0,0].axvline(self.abs_spin_mean+self.abs_spin_std, color="red", ls=":")
+
+        self.ax[0,1].hist(self.susceptibilities, bins=bins)
+        self.ax[0,1].axvline(self.susceptibility_mean, color="black", ls="--", label="Mean")
+        self.ax[0,1].axvline(self.susceptibility_mean-self.susceptibility_std, color="red", ls=":",
+                             label="Standard deviation")
+        self.ax[0,1].axvline(self.susceptibility_mean+self.susceptibility_std, color="red", ls=":")
+        self.ax[0,1].legend()
+
+        self.ax[1,0].hist(self.energies_per_spin, bins=bins)
+        self.ax[1,0].axvline(self.energy_per_spin_mean, color="black", ls="--")
+        self.ax[1,0].axvline(self.energy_per_spin_mean-self.energy_per_spin_std, color="red", ls=":")
+        self.ax[1,0].axvline(self.energy_per_spin_mean+self.energy_per_spin_std, color="red", ls=":")
+
+        self.ax[1,1].hist(self.specific_heats, bins=bins)
+        self.ax[1,1].axvline(self.specific_heat_mean, color="black", ls="--")
+        self.ax[1,1].axvline(self.specific_heat_mean-self.specific_heat_std, color="red", ls=":")
+        self.ax[1,1].axvline(self.specific_heat_mean+self.specific_heat_std, color="red", ls=":")
+
+
+    def show(self):
+
+        self.fig.show()
+
+
+    def save(self, filename, tight=False):
+
+        if tight:
+            self.fig.savefig(filename, bbox_inches="tight")
+        else:
+            self.fig.savefig(filename)
