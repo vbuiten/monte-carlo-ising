@@ -8,42 +8,44 @@ from matplotlib.ticker import AutoMinorLocator
 import numpy as np
 plt.rcParams["font.family"] = "serif"
 
-temp = 1.0
-N = 50
+temp = 2.6
+N = 20
 
 lattice = Lattice(N)
 lattice.spins = np.ones((N,N))
 sim = Simulator(lattice, temp)
-times_eq, magnetisations_eq = sim.equilibrate(reject_rate_threshold=5e-3)
+times_eq, magnetisations_eq = sim.equilibrate(reject_rate_threshold=1e-3)
 
 # plot the magnetisation throughout equilibration
 fig, ax = plt.subplots(figsize=(7,5), dpi=240)
 ax.plot(times_eq, magnetisations_eq / N**2, lw=.5)
 ax.set_xlabel("Time")
 ax.set_ylabel("Magnetisation per spin")
-ax.set_title("Magnetisation During Equilibration")
+fig.suptitle("Magnetisation During Equilibration")
+ax.set_title("$T =$"+str(temp))
 ax.xaxis.set_minor_locator(AutoMinorLocator(5))
 ax.yaxis.set_minor_locator(AutoMinorLocator(5))
 ax.grid(which="major")
 fig.show()
 
 # now do a test run for estimating the correlation time
-test_time_end = 200
+test_time_end = 300
 times_test, magnetisations_test, energies_test = sim.evolve(test_time_end)
 
 fig2, ax2 = plt.subplots(figsize=(7,5), dpi=240)
 ax2.plot(times_test, magnetisations_test / N**2, lw=.5)
 ax2.set_xlabel("Time")
 ax2.set_ylabel("Magnetisation per spin")
-ax2.set_title("Magnetisation During Test Run")
+fig2.suptitle("Magnetisation During Test Run")
+ax2.set_title("$T =$"+str(temp))
 ax2.xaxis.set_minor_locator(AutoMinorLocator(5))
 ax2.yaxis.set_minor_locator(AutoMinorLocator(5))
 ax2.grid(which="major")
 fig2.show()
 
 # compute the correlation function
-norm_corr_func = normalisedCorrelationFunction(times_test, magnetisations_test)
-corr_time = correlationTimeFromCorrelationFunction(times_test, norm_corr_func)
+norm_corr_func = normalisedCorrelationFunction(times_test, magnetisations_test/N**2)
+corr_time = correlationTimeFromCorrelationFunction(times_test, norm_corr_func, negative_stop=True)
 print ("Estimated correlation time:", corr_time)
 before80percent = times_test[:-1] < 0.8*test_time_end
 
@@ -51,7 +53,8 @@ fig3, ax3 = plt.subplots(figsize=(7,5), dpi=240)
 ax3.plot(times_test[:-1][before80percent], norm_corr_func[before80percent], lw=.5)
 ax3.set_xlabel("Time")
 ax3.set_ylabel(r"$\chi(t) / \chi(0)$")
-ax3.set_title("Correlation Function During Test Run")
+ax3.set_title("$T =$"+str(temp))
+fig3.suptitle("Correlation Function During Test Run")
 ax3.xaxis.set_minor_locator(AutoMinorLocator(5))
 ax3.yaxis.set_minor_locator(AutoMinorLocator(5))
 ax3.grid(which="major")
@@ -114,4 +117,5 @@ ax4[1,1].axvline(mean_energy_per_spin+std_abs_spin, color="black", ls=":")
 ax4[1,1].set_xlabel(r"$E / N^2$")
 ax4[1,1].set_title("Energy Per Spin")
 
+fig4.suptitle("Measurements for $T =$"+str(temp))
 fig4.show()

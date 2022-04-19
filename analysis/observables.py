@@ -58,8 +58,11 @@ class Measurer:
             raise TypeError("No correlation time found!")
 
         # divide times up in intervals of 1 sweep or 16 correlation times
-        self.indices_sweep = np.argwhere((times - times[0]) % 1 == 0)[:,0]
-        self.indices_16tau = np.argwhere((times - times[0]) % 16 * self.correlation_time == 0)[:,0]
+        self.indices_sweep = np.argwhere(np.around(times - times[0], 3) % 1 == 0)[:,0]
+        self.indices_16tau = np.argwhere(np.around(times - times[0], 3) % 16 * self.correlation_time == 0)[:,0]
+
+        print ("Indices marking full sweeps:", self.indices_sweep)
+        print (r"Indices marking $16\tau$ blocks:", self.indices_16tau)
 
 
     def meanAbsoluteSpin(self):
@@ -71,7 +74,7 @@ class Measurer:
             abs_spins[i] = meanAbsoluteSpin(magnetisations, self.size)
 
         mean = np.mean(abs_spins)
-        std = thermalAveragingStandardDeviation(self.times, abs_spins)
+        std = thermalAveragingStandardDeviation(self.times, abs_spins, self.correlation_time)
 
         return abs_spins, mean, std
 
@@ -85,7 +88,7 @@ class Measurer:
             energies_per_spin[i] = meanEnergyPerSpin(energies, self.size)
 
         mean = np.mean(energies_per_spin)
-        std = thermalAveragingStandardDeviation(self.times, energies_per_spin)
+        std = thermalAveragingStandardDeviation(self.times, energies_per_spin, self.correlation_time)
 
         return energies_per_spin, mean, std
 
@@ -96,7 +99,7 @@ class Measurer:
 
         for i in range(len(self.indices_16tau)-1):
             magnetisations = self.magnetisations[self.indices_16tau[i]:self.indices_16tau[i+1]]
-            susceptibilities[i] = magneticSusceptibility(magnetisations, self.size)
+            susceptibilities[i] = magneticSusceptibility(magnetisations, self.size, self.temperature)
 
         mean = np.mean(susceptibilities)
         std = np.std(susceptibilities)
@@ -110,7 +113,7 @@ class Measurer:
 
         for i in range(len(self.indices_16tau)-1):
             energies = self.energies[self.indices_16tau[i]:self.indices_16tau[i+1]]
-            specific_heats[i] = specificHeatPerSpin(energies, self.size)
+            specific_heats[i] = specificHeatPerSpin(energies, self.size, self.temperature)
 
         mean = np.mean(specific_heats)
         std = np.std(specific_heats)

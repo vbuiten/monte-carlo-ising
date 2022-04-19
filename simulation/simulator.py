@@ -127,7 +127,7 @@ class Simulator:
             magnetisations[i] = self.lattice.magnetisation()
             energy = self.step(current_energy=energy)
 
-            if (time - self.time) % 1 == 0:
+            if (time - self.time) % 10 == 0:
                 print ("Time: {}".format(time))
 
         print ("Simulation finished.")
