@@ -19,10 +19,14 @@ savedir = os.path.join(basepath, dirname)
 if not os.path.isdir(savedir):
     os.mkdir(savedir)
 
+savedir = savedir + "/"
+
+print ("Saving directory: {}".format(savedir))
+
 for i, temp in enumerate(temperatures):
 
     lattice = Lattice(N)
-    lattice.spins = lattice.uniformRandomSpins()
+    lattice.spins = np.ones((N,N))
     sim = Simulator(lattice, temp)
 
     # equilibrate the lattice
