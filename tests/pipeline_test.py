@@ -8,8 +8,8 @@ from matplotlib.ticker import AutoMinorLocator
 import numpy as np
 plt.rcParams["font.family"] = "serif"
 
-temp = 2.6
-N = 20
+temp = 1.6
+N = 50
 
 lattice = Lattice(N)
 lattice.spins = np.ones((N,N))
@@ -68,22 +68,6 @@ abs_spins, mean_abs_spin, std_abs_spin = measurer.meanAbsoluteSpin()
 energies_per_spin, mean_energy_per_spin, std_energy_per_spin = measurer.energyPerSpin()
 susceptibilities, mean_susceptibility, std_susceptibility = measurer.magneticSusceptibility()
 specific_heats, mean_specific_heat, std_specific_heat = measurer.specificHeatPerSpin()
-'''
-susceptibilities = np.zeros(n_it)
-specific_heats = np.zeros(n_it)
-
-for i in range(n_it):
-    times, magnetisations, energies = sim.evolve(sim.time+16*corr_time)
-    susceptibilities[i] = magneticSusceptibility(magnetisations, N, temp)
-    specific_heats[i] = specificHeatPerSpin(energies, N, temp)
-    print ("Iteration {} of {} finished.".format(i+1, n_it))
-    print ("Magnetic susceptibility: {} \t Specific heat per spin: {}".format(susceptibilities[i], specific_heats[i]))
-
-mean_susceptibility = np.mean(susceptibilities)
-std_susceptibility = np.std(susceptibilities)
-mean_specific_heat = np.mean(specific_heats)
-std_specific_heat = np.std(specific_heats)
-'''
 
 fig4, ax4 = plt.subplots(figsize=(10,10), dpi=240, nrows=2, ncols=2, sharey=True)
 ax4[0,0].hist(susceptibilities, bins="sqrt")
