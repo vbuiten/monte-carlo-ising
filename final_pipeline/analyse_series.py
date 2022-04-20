@@ -8,4 +8,4 @@ from analysis.observables import DirectoryMeasurer
 datadir = "/net/vdesk/data2/buiten/COP/ising-sim-data-N50/"
 
 dirmeasurer = DirectoryMeasurer(datadir, usetex=True)
-fig, ax = dirmeasurer.plotCorrelationTimes()
+plots = dirmeasurer.plotAll()

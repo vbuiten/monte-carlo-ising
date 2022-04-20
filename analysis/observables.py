@@ -256,11 +256,11 @@ class DirectoryMeasurer:
         return fig, ax
 
 
-    def plotAbsSpins(self, figsize=(6,4), dpi=240):
+    def plotAbsSpins(self, figsize=(6,4), dpi=240, capsize=5, fmt="s"):
 
         fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
         ax.errorbar(self.temperatures, self.abs_spin_means, yerr=self.abs_spin_stds,
-                    capsize=3, marker=".")
+                    capsize=capsize, fmt=fmt)
         ax.set_xlabel(r"Temperature $T$")
         ax.set_ylabel(r"Mean absolute spin $<|m|>$")
         ax.xaxis.set_minor_locator(AutoMinorLocator(5))
@@ -271,16 +271,58 @@ class DirectoryMeasurer:
         return fig, ax
 
 
-    def plotEnergyPerSpin(self, figsize=(6,4), dpi=240):
+    def plotEnergyPerSpin(self, figsize=(6,4), dpi=240, capsize=5, fmt="s"):
 
-        pass
+        fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+        ax.errorbar(self.temperatures, self.energy_per_spin_means, yerr=self.energy_per_spin_stds,
+                    capsize=capsize, fmt=fmt)
+        ax.set_xlabel(r"Temperature $T$")
+        ax.set_ylabel(r"Energy per spin $E / N^2$")
+        ax.xaxis.set_minor_locator(AutoMinorLocator(5))
+        ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+        fig.suptitle("Energy Per Spin vs. Temperature")
+        fig.show()
+
+        return fig, ax
 
 
-    def plotMagneticSusceptibility(self, figsize=(6,4), dpi=240):
+    def plotMagneticSusceptibility(self, figsize=(6,4), dpi=240, capsize=5, fmt="s"):
 
-        pass
+        fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+        ax.errorbar(self.temperatures, self.susc_means, yerr=self.susc_stds,
+                    capsize=capsize, fmt=fmt)
+        ax.set_xlabel(r"Temperature $T$")
+        ax.set_ylabel(r"Magnetic Susceptibility $\chi_M$")
+        ax.xaxis.set_minor_locator(AutoMinorLocator(5))
+        ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+        fig.suptitle("Magnetic Susceptibility vs. Temperature")
+        fig.show()
+
+        return fig, ax
 
 
-    def plotSpecificHeat(self, figsize=(6,4), dpi=240):
+    def plotSpecificHeat(self, figsize=(6,4), dpi=240, capsize=5, fmt="s"):
 
-        pass
+        fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+        ax.errorbar(self.temperatures, self.spec_heat_means, yerr=self.spec_heat_stds,
+                    capsize=capsize, fmt=fmt)
+        ax.set_xlabel(r"Temperature $T$")
+        ax.set_ylabel(r"Specific Heat Per Spin $C$")
+        ax.xaxis.set_minor_locator(AutoMinorLocator(5))
+        ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+        fig.suptitle("Specific Heat Per Spin vs. Temperature")
+        fig.show()
+
+        return fig, ax
+
+
+    def plotAll(self, figsize=(6,4), dpi=240, capsize=5, fmt=".-"):
+
+        fig_tau, ax_tau = self.plotCorrelationTimes(figsize, dpi)
+        fig_abs_spin, ax_abs_spin = self.plotAbsSpins(figsize, dpi, capsize, fmt)
+        fig_energy, ax_energy = self.plotEnergyPerSpin(figsize, dpi, capsize, fmt)
+        fig_susc, ax_susc = self.plotMagneticSusceptibility(figsize, dpi, capsize, fmt)
+        fig_heat, ax_heat = self.plotSpecificHeat(figsize, dpi, capsize, fmt)
+
+        return [[fig_tau, ax_tau], [fig_abs_spin, ax_abs_spin], [fig_energy, ax_energy],
+                [fig_susc, ax_susc], [fig_heat, ax_heat]]
