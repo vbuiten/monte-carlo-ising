@@ -61,8 +61,8 @@ class Measurer:
             raise TypeError("No correlation time found!")
 
         # divide times up in intervals of 1 sweep or 16 correlation times
-        self.indices_sweep = np.argwhere(np.around(times - times[0], 4) % 1 == 0)[:,0]
-        self.indices_16tau = np.argwhere(np.around(times - times[0], 4) % 16 * self.correlation_time == 0)[:,0]
+        self.indices_sweep = np.argwhere(np.around(self.times - self.times[0], 4) % 1 == 0)[:,0]
+        self.indices_16tau = np.argwhere(np.around(self.times - self.times[0], 4) % 16 * self.correlation_time == 0)[:,0]
 
         print ("Indices marking full sweeps:", self.indices_sweep)
         print (r"Indices marking $16\tau$ blocks:", self.indices_16tau)
@@ -207,15 +207,20 @@ class ObservablePlotter(Measurer):
             self.fig.savefig(filename)
 
 
-class DirectoryMeasurer(LatticeHistories):
+class DirectoryMeasurer:
     def __init__(self, directory, usetex=False):
 
         plt.rcParams["text.usetex"] = usetex
 
-        super(DirectoryMeasurer, self).__init__(directory)
+        #super(DirectoryMeasurer, self).__init__(directory)
+        histories_obj = LatticeHistories(directory)
+        histories = histories_obj.histories
+        self.n_histories = histories_obj.n_histories
 
-        self.temperatures = np.array([history.temperature for history in self.histories])
-        self.measurers = [Measurer(history) for history in self.histories]
+        self.temperatures = np.array([history.temperature for history in histories])
+        print ("Shape of temperatures: {}".format(self.temperatures.shape))
+        print ("Number of simulations: {}".format(self.n_histories))
+        measurers = [Measurer(history) for history in histories]
 
         # save all means and standard deviations
         self.corr_times = np.zeros(self.n_histories)
@@ -228,12 +233,13 @@ class DirectoryMeasurer(LatticeHistories):
         self.spec_heat_means = np.zeros(self.n_histories)
         self.spec_heat_stds = np.zeros(self.n_histories)
 
-        for i, (history, measurer) in enumerate(zip(self.histories, self.measurers)):
+        for i, (history, measurer) in enumerate(zip(histories, measurers)):
             self.corr_times[i] = history.correlation_time
             _, self.abs_spin_means[i], self.abs_spin_stds[i] = measurer.meanAbsoluteSpin()
             _, self.energy_per_spin_means[i], self.energy_per_spin_stds[i] = measurer.energyPerSpin()
             _, self.susc_means[i], self.susc_stds[i] = measurer.magneticSusceptibility()
             _, self.spec_heat_means[i], self.spec_heat_stds[i] = measurer.specificHeatPerSpin()
+            print ("Measurements finished for T = {}".format(history.temperature))
 
 
     def plotCorrelationTimes(self, figsize=(6,4), dpi=240):
