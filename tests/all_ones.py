@@ -5,9 +5,9 @@ from simulation.utils import normalisedCorrelationFunction, correlationFunction
 from analysis.visualisation import LatticeVisual
 import matplotlib.pyplot as plt
 import numpy as np
-from IPython import embed
+#from IPython import embed
 
-temp = 5.0
+temp = 2.0
 N = 50
 
 path = r"C:\\Users\\victo\\Documents\\Uni\\COP\\"
@@ -21,11 +21,10 @@ vis.ax.set_title("Initial Configuration")
 vis.show()
 
 sim = Simulator(lattice, temp)
-times, magnetisations, energies = sim.evolve(300, None)
+sim.equilibrate(reject_rate_threshold=5e-3)
+times, magnetisations, energies = sim.evolve(100, None)
 
-after25sweeps = (times > 25)
-
-corr_func_energies = correlationFunction(times[after25sweeps], magnetisations[after25sweeps])
+corr_func_magnetisation = correlationFunction(times, magnetisations)
 
 vis.update()
 vis.ax.set_title("Final Configuration")
@@ -36,19 +35,19 @@ ax2[0].plot(times, energies, lw=.5)
 ax2[1].plot(times, magnetisations, lw=.5)
 ax2[1].set_xlabel("Times")
 
-ax2[0].set_ylabel("Energy per spin")
-ax2[1].set_ylabel("Magnetisation per spin")
+ax2[0].set_ylabel("Energy")
+ax2[1].set_ylabel("Magnetisation")
 
 fig2.show()
 
 fig3, ax3 = plt.subplots(figsize=(7,5), dpi=240)
-ax3.plot(times[after25sweeps][:-1], corr_func_energies, lw=.5)
+ax3.plot(times[:-1], corr_func_magnetisation, lw=.5)
 ax3.set_xlabel("Times")
-ax3.set_ylabel("Magnetisation Correlation Function")
+ax3.set_ylabel("Energy Correlation Function")
 fig3.show()
-
 # compute correlation time
+
 timestep = times[1] - times[0]
-positive = corr_func_energies > 0
-corr_time = timestep * np.sum(corr_func_energies/corr_func_energies[0])
+positive = corr_func_magnetisation > 0
+corr_time = timestep * np.sum(corr_func_magnetisation/corr_func_magnetisation[0])
 print ("Correlation time: {}".format(corr_time))

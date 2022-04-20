@@ -1,6 +1,7 @@
 import numpy as np
 import h5py
 import framework.lattice
+from simulation.utils import meanAbsoluteSpin, energyPerSpin
 
 
 class Simulator:
@@ -49,40 +50,96 @@ class Simulator:
         return new_energy
 
 
-    def evolve(self, time_end, savefile=None):
+    def equilibrate(self, threshold=0.9, sweeps=10, reject_rate_threshold=1e-3):
+        '''
+        Bring the system into equilibrium using a rejection rate stability criterion.
+
+        :param threshold:
+        :param sweeps: int
+                Number of sweeps after which the rejection rate is checked and reset.
+        :param reject_rate_threshold: float
+                Threshold for the absolute difference between rejection rates.
+                If the difference in rejection rates is smaller than this number, the equilibration stops.
+        :return: times: ndarray of shape (n_times,)
+                Times used in the equilibration process
+                magnetisations: ndarray of shape (n_times,)
+                Total magnetisation of the lattice at each point in time.
+        '''
+
+        old_energy = self.lattice.hamiltonian()
+        times = np.array([])
+        magnetisations = np.array([])
+        time = 0.
+        rejected = 0
+        rejection_rate = 1e-8
+        rejection_rate_diff = 1.
+        full_sweep = False
+
+        # simulate until the rejection rate per sweep reaches the threshold
+        #while (rejection_rate < threshold) or (not full_sweep):
+        while (abs(rejection_rate_diff) > reject_rate_threshold) or not full_sweep:
+
+            # reset the counter after one full sweep
+            if (np.around(time, 8) % sweeps == 0.) and (time != 0):
+                print("Time:", time)
+
+                new_rejection_rate = rejected / (sweeps * self.lattice.size**2)
+                print ("Rejection rate:", new_rejection_rate)
+                rejection_rate_diff = new_rejection_rate - rejection_rate
+                print ("Rejection rate difference:", rejection_rate_diff)
+
+                rejection_rate = float(np.copy(new_rejection_rate))
+
+                rejected = 0
+                full_sweep = True
+
+            else:
+                full_sweep = False
+
+            times = np.append(times, time)
+            magnetisations = np.append(magnetisations, self.lattice.magnetisation())
+
+            energy = self.step(current_energy=old_energy)
+
+            # if the new state is rejected, add to the counter
+            if energy == old_energy:
+                rejected += 1
+
+            old_energy = float(np.copy(energy))
+            time += self.time_per_flip
+
+        print ("Equilibration finished.")
+
+        return times, magnetisations
+
+
+    def evolve(self, time_end, savefile=None, correlation_time=None):
 
         times = np.arange(self.time, time_end, self.time_per_flip)
         magnetisations = np.zeros(times.shape)
         energies = np.zeros(times.shape)
 
-        #spins_history = np.zeros((len(times), self.lattice.size, self.lattice.size))
-
         energy = self.lattice.hamiltonian()
 
         for i, time in enumerate(times):
 
-            #spins_history[i] = np.copy(self.lattice.spins)
             energies[i] = energy
             magnetisations[i] = self.lattice.magnetisation()
             energy = self.step(current_energy=energy)
 
-            if (time - self.time) % 1 == 0:
+            if np.around(time - self.time, 5) % 10 == 0:
                 print ("Time: {}".format(time))
 
         print ("Simulation finished.")
-        self.time = time
-
-        energies_avg = energies / self.lattice.size**2
-        magnetisations_avg = magnetisations / self.lattice.size**2
+        self.time = times[-1]
 
         if isinstance(savefile, str):
             if not savefile.endswith(".hdf5"):
                 savefile = savefile+".hdf5"
 
             file = h5py.File(savefile, "w")
-            #spins_dset = file.create_dataset("spins", data=spins_history)
-            energies_dset = file.create_dataset("avg-energy", data=energies_avg)
-            magnetisations_dset = file.create_dataset("avg-magnetisation", data=magnetisations_avg)
+            energies_dset = file.create_dataset("energy", data=energies)
+            magnetisations_dset = file.create_dataset("magnetisation", data=magnetisations)
 
             xgrid_dset = file.create_dataset("x_grid", data=self.lattice.x_grid)
             ygrid_dset = file.create_dataset("y_grid", data=self.lattice.y_grid)
@@ -90,7 +147,10 @@ class Simulator:
             file.attrs["temperature"] = self.temperature
             file.attrs["size"] = self.lattice.size
 
+            if correlation_time is not None:
+                file.attrs["correlation-time"] = correlation_time
+
             file.close()
             print ("File created at {}.".format(savefile))
 
-        return times, magnetisations_avg, energies_avg
+        return times, magnetisations, energies
