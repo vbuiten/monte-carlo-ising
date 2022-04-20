@@ -10,7 +10,8 @@ plt.rcParams["font.family"] = "serif"
 plt.rcParams["text.usetex"] = True
 import os
 
-temperatures = np.arange(1., 4.1, .2)
+#temperatures = np.arange(1., 4.1, .2)
+temperatures = np.arange(2.6, 4.1, .2)
 N = 50
 basepath = "/net/vdesk/data2/buiten/COP/"
 dirname = "ising-sim-data-N"+str(N)
@@ -25,6 +26,8 @@ print ("Saving directory: {}".format(savedir))
 
 for i, temp in enumerate(temperatures):
 
+    temp_str = str(np.around(temp,3))
+
     lattice = Lattice(N)
     lattice.spins = np.ones((N,N))
     sim = Simulator(lattice, temp)
@@ -37,11 +40,11 @@ for i, temp in enumerate(temperatures):
     ax.set_xlabel("Time")
     ax.set_ylabel("Magnetisation per spin")
     fig.suptitle("Magnetisation During Equilibration")
-    ax.set_title("$T =$" + str(temp))
+    ax.set_title("$T =$" + temp_str)
     ax.xaxis.set_minor_locator(AutoMinorLocator(5))
     ax.yaxis.set_minor_locator(AutoMinorLocator(5))
     ax.grid(which="major")
-    fig.savefig(savedir+"temp"+str(temp)+"equilibration.png")
+    fig.savefig(savedir+"temp"+temp_str+"equilibration.png")
 
     # do a test run for estimating the correlation time
     test_time_end = 400
@@ -52,11 +55,11 @@ for i, temp in enumerate(temperatures):
     ax2.set_xlabel("Time")
     ax2.set_ylabel("Magnetisation per spin")
     fig2.suptitle("Magnetisation During Test Run")
-    ax2.set_title("$T =$" + str(temp))
+    ax2.set_title("$T =$" + temp_str)
     ax2.xaxis.set_minor_locator(AutoMinorLocator(5))
     ax2.yaxis.set_minor_locator(AutoMinorLocator(5))
     ax2.grid(which="major")
-    fig2.savefig(savedir+"temp"+str(temp)+"test-run.png")
+    fig2.savefig(savedir+"temp"+temp_str+"test-run.png")
 
     # compute the correlation function and time
     norm_corr_func = normalisedCorrelationFunction(times_test, magnetisations_test)
@@ -68,16 +71,16 @@ for i, temp in enumerate(temperatures):
     ax3.plot(times_test[:-1][before80percent], norm_corr_func[before80percent], lw=.5)
     ax3.set_xlabel("Time")
     ax3.set_ylabel(r"$\chi(t) / \chi(0)$")
-    ax3.set_title("$T =$" + str(temp))
+    ax3.set_title("$T =$" + temp_str)
     fig3.suptitle("Correlation Function During Test Run")
     ax3.xaxis.set_minor_locator(AutoMinorLocator(5))
     ax3.yaxis.set_minor_locator(AutoMinorLocator(5))
     ax3.grid(which="major")
-    fig3.savefig(savedir+"temp"+str(temp)+"correlation-function.png")
+    fig3.savefig(savedir+"temp"+temp_str+"correlation-function.png")
 
     # now run a long simulation and save the data
     n_blocks = 100
     _, _, _ = sim.evolve(sim.time + n_blocks * 16 * corr_time,
-                         savefile=savedir+"temp"+str(temp)+"data.hdf5", correlation_time=corr_time)
+                         savefile=savedir+"temp"+temp_str+"data.hdf5", correlation_time=corr_time)
 
     print ("Completed for T = {}".format(temp))
