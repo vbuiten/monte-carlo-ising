@@ -10,8 +10,7 @@ plt.rcParams["font.family"] = "serif"
 plt.rcParams["text.usetex"] = True
 import os
 
-#temperatures = np.arange(1., 4.1, .2)
-temperatures = np.arange(2.6, 4.1, .2)
+temperatures = np.arange(1., 4.1, .2)
 N = 50
 basepath = "/net/vdesk/data2/buiten/COP/"
 dirname = "ising-sim-data-N"+str(N)
@@ -55,7 +54,7 @@ for i, temp in enumerate(temperatures):
     ax2.set_xlabel("Time")
     ax2.set_ylabel("Magnetisation per spin")
     fig2.suptitle("Magnetisation During Test Run")
-    ax2.set_title("$T =$" + temp_str)
+    ax2.set_title("$T =$ " + temp_str)
     ax2.xaxis.set_minor_locator(AutoMinorLocator(5))
     ax2.yaxis.set_minor_locator(AutoMinorLocator(5))
     ax2.grid(which="major")
@@ -71,7 +70,7 @@ for i, temp in enumerate(temperatures):
     ax3.plot(times_test[:-1][before80percent], norm_corr_func[before80percent], lw=.5)
     ax3.set_xlabel("Time")
     ax3.set_ylabel(r"$\chi(t) / \chi(0)$")
-    ax3.set_title("$T =$" + temp_str)
+    ax3.set_title("$T =$ " + temp_str)
     fig3.suptitle("Correlation Function During Test Run")
     ax3.xaxis.set_minor_locator(AutoMinorLocator(5))
     ax3.yaxis.set_minor_locator(AutoMinorLocator(5))
