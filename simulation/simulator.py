@@ -1,11 +1,19 @@
 import numpy as np
 import h5py
 import framework.lattice
-from simulation.utils import meanAbsoluteSpin, energyPerSpin
 
 
 class Simulator:
     def __init__(self, lattice, temperature):
+        '''
+        Class for evolving the 2D Ising model. The evolution is performed through the Metropolis-Hastings
+        algorithm, using Boltzmann weights as the relevant probability distribution.
+
+        :param lattice: Lattice instance
+                Lattice on which to apply the evolution mechanism.
+        :param temperature: float
+                Dimensionless temperature of the system.
+        '''
 
         if isinstance(lattice, framework.lattice.Lattice):
             self.lattice = lattice
@@ -22,7 +30,19 @@ class Simulator:
         self.time_per_flip = 1./self.flips_per_time
         self.time = 0.
 
+
     def step(self, current_energy=None):
+        '''
+        Take one step of the simulation, i.e. flip a single spin on the lattice and either accept or reject
+        the new state.
+
+        :param current_energy: float or NoneType
+                Energy in the current configuration, before taking the evolution step. If None, calculates the
+                energy from scratch. Providing this parameter is recommended as it is computationally favourable.
+                Default is None.
+        :return: new_energy: float
+                Energy after the evolution step has been taken.
+        '''
 
         if current_energy is None:
             # measure the energy in the current state
@@ -45,16 +65,14 @@ class Simulator:
             if not accept:
                 self.lattice.spins = current_spins
                 new_energy = current_energy
-                #print ("Not accepted. New energy: {}".format(new_energy))
 
         return new_energy
 
 
-    def equilibrate(self, threshold=0.9, sweeps=10, reject_rate_threshold=1e-3):
+    def equilibrate(self, sweeps=10, reject_rate_threshold=1e-3):
         '''
         Bring the system into equilibrium using a rejection rate stability criterion.
 
-        :param threshold:
         :param sweeps: int
                 Number of sweeps after which the rejection rate is checked and reset.
         :param reject_rate_threshold: float
@@ -76,7 +94,6 @@ class Simulator:
         full_sweep = False
 
         # simulate until the rejection rate per sweep reaches the threshold
-        #while (rejection_rate < threshold) or (not full_sweep):
         while (abs(rejection_rate_diff) > reject_rate_threshold) or not full_sweep:
 
             # reset the counter after one full sweep
@@ -114,6 +131,25 @@ class Simulator:
 
 
     def evolve(self, time_end, savefile=None, correlation_time=None):
+        '''
+        Evolve the system for some "time" interval, i.e. for a given number of sweeps of the lattice.
+
+        :param time_end: float
+                "Time" for which to run the simulation.
+        :param savefile: float or NoneType
+                File to which the data should be saved. If None, no simulation data is stored. Default is None.
+        :param correlation_time: float
+                Estimated correlation time for the system. If None while "savefile" is not None, the attribute
+                corresponding to the correlation time is also set to be None, but several measurements will no longer
+                be possible in post-processing. Default is None.
+        :return:
+            times: ndarray of shape (n_times,)
+                Time stamps for every evolution step
+            magnetisations: ndarray of shape (n_times,)
+                Total magnetisation of the lattice at every step
+            energies: ndarray of shape (n_times,)
+                Total energy of the lattice at every step
+        '''
 
         times = np.arange(self.time, time_end, self.time_per_flip)
         magnetisations = np.zeros(times.shape)

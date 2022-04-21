@@ -81,6 +81,17 @@ def specificHeatPerSpin(total_energy, linear_size, temperature):
 
 @jit(nopython=True)
 def thermalAveragingStandardDeviation(times, quantities, correlation_time):
+    '''
+    Estimate the standard deviation on the mean of some quantity through thermal averaging.
+
+    :param times: ndarray of shape (n_sweeps,)
+            Time stamps for every sweep of the lattice
+    :param quantities: ndarray of shape (n_sweeps,)
+            Quantity for which to compute the standard deviation
+    :param correlation_time: float
+            Correlation time of the system
+    :return:
+    '''
 
     t_max = times[-1]
     prefactor = 2 * correlation_time / t_max
