@@ -1,9 +1,21 @@
 import numpy as np
 from numba import jit
-from IPython import embed
 
 @jit(nopython=True, parallel=True)
 def correlationFunction(times, quantities, t_eval_max=None):
+    '''
+    Measures the correlation function of the given quantity.
+
+    :param times: ndarray of shape (n_times,)
+            Time stamps
+    :param quantities: ndarray of shape (n_times,)
+            Value of the quantity for which to compute the correlation function at each point in time
+    :param t_eval_max: float or NoneType
+            Maximum time stamp to use in the prefactor. If None, uses the last entry of "times". Default is None.
+    :return:
+        corr_func: ndarray of shape (n_times-1,)
+            Correlation function at each time stamp except the last.
+    '''
 
     t_max = times[-1]
     timestep = times[1] - times[0]
@@ -27,16 +39,23 @@ def correlationFunction(times, quantities, t_eval_max=None):
 
         if times[i] % 10 == 0:
             print("Time:", times[i])
-            '''
-            print ("First term:", term1)
-            print ("Second term:", term2)
-            '''
 
     return corr_func
 
 
 @jit(nopython=True, parallel=True)
 def normalisedCorrelationFunction(times, quantities):
+    '''
+    Measures the normalised correlation function of the given quantity. Normalises by the value at the first time stamp.
+
+    :param times: ndarray of shape (n_times,)
+            Time stamps
+    :param quantities: ndarray of shape (n_times,)
+            Value of the quantity for which to compute the correlation function at each point in time
+    :return:
+        norm_corr_func: ndarray of shape (n_times-1,)
+            Normalised correlation function at each time stamp except the last.
+    '''
 
     corr_func = correlationFunction(times, quantities)
     corr_func0 = corr_func[0]
@@ -48,6 +67,19 @@ def normalisedCorrelationFunction(times, quantities):
 
 @jit(nopython=True)
 def correlationTimeFromCorrelationFunction(times, normalised_corr_func, negative_stop=True):
+    '''
+    Estimates the correlation time from a provided normalised correlation function.
+
+    :param times: ndarray of shape (n_times,)
+            Time stamps
+    :param normalised_corr_func: ndarray of shape (n_times-1,)
+            Normalised correlation function at each point in time except the last
+    :param negative_stop: bool
+            If True, stops summing the moment the correlation function first becomes negative. Default is True.
+    :return:
+        corr_time: float
+            Estimated correlation time.
+    '''
 
     timestep = times[1] - times[0]
     indices_negative = np.argwhere(normalised_corr_func < 0)
@@ -68,24 +100,19 @@ def correlationTimeFromCorrelationFunction(times, normalised_corr_func, negative
 
 @jit(nopython=True, parallel=True)
 def correlationTime(times, quantities):
+    '''
+    Estimates the correlation time by measuring the correlation function of the given quantity.
+
+    :param times: ndarray of shape (n_times,)
+            Time stamps
+    :param quantities: ndarray of shape (n_times,)
+            Value of the quantity for which to compute the correlation function at each point in time
+    :return:
+        corr_time: float
+            Estimated correlation time.
+    '''
 
     norm_corr_func = normalisedCorrelationFunction(times, quantities)
     corr_time = correlationTimeFromCorrelationFunction(times, norm_corr_func)
 
     return corr_time
-
-
-@jit(nopython=True)
-def meanAbsoluteSpin(magnetisation_per_spin):
-    '''Obsolete'''
-
-    abs_spin_per_point = np.abs(magnetisation_per_spin)
-
-    return abs_spin_per_point
-
-
-@jit(nopython=True)
-def energyPerSpin(energy, n_spins):
-    '''Obsolete'''
-
-    return energy / n_spins
