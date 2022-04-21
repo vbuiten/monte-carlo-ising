@@ -8,9 +8,17 @@ import numpy as np
 
 class EvolutionPlotBase:
     def __init__(self, histories, usetex=False):
+        '''
+        Base class for making plots of the evolution of magnetisation or energy throughout a simulation.
 
-        if usetex:
-            plt.rcParams["text.usetex"] = True
+        :param histories: LatticeHistories instance or LatticeHistory instance or str
+                Simulation data. Either a pre-loaded set of data or a string indicating the directory in which
+                the data are stored.
+        :param usetex: bool
+                If True, use Latex for the plot layout. Default is False.
+        '''
+
+        plt.rcParams["text.usetex"] = usetex
 
         if isinstance(histories, LatticeHistories):
             self.histories = histories.histories
@@ -42,6 +50,14 @@ class EvolutionPlotBase:
 
 
     def _addHistory(self, history):
+        '''
+        Add the data of a single simulation to the object.
+
+        :param history: LatticeHistory instance or str
+                Data to use. Either a LatticeHistory object or a file name.
+        :return: history: LatticeHistory instance
+                The newly added LatticeHistory instance.
+        '''
 
         if isinstance(history, LatticeHistory):
             pass
@@ -53,17 +69,38 @@ class EvolutionPlotBase:
 
 
     def show(self):
+        '''
+        Show the figure.
+
+        :return:
+        '''
 
         self.fig.show()
 
 
     def save(self, filename):
+        '''
+        Save the figure.
+
+        :param filename: str
+                File name at which to save the figure.
+        :return:
+        '''
 
         self.fig.savefig(filename)
 
 
 class MagnetisationPlotter(EvolutionPlotBase):
     def __init__(self, histories, usetex=False):
+        '''
+        Class for automatically plotting the evolution of the magnetisation per spin for a series of simulations.
+
+        :param histories: LatticeHistories instance or LatticeHistory instance or str
+                Simulation data. Either a pre-loaded set of data or a string indicating the directory in which
+                the data are stored.
+        :param usetex: bool
+                If True, use Latex for the plot layout. Default is False.
+        '''
 
         super(MagnetisationPlotter, self).__init__(histories, usetex)
 
@@ -75,6 +112,13 @@ class MagnetisationPlotter(EvolutionPlotBase):
 
 
     def addHistory(self, history):
+        '''
+        Add the data of a single simulation to the object.
+
+        :param history: LatticeHistory instance or str
+                Data to use. Either a LatticeHistory object or a file name.
+        :return:
+        '''
 
         history = self._addHistory(history)
         self.magnetisations = np.append(self.magnetisations, history.magnetisations / self.size**2,
@@ -82,6 +126,11 @@ class MagnetisationPlotter(EvolutionPlotBase):
 
 
     def plot(self):
+        '''
+        Plot the magnetisations.
+
+        :return:
+        '''
 
         for i, el in enumerate(self.magnetisations):
             self.ax.plot(self.times, el, lw=.5, alpha=.8, label="$T =$ {}".format(np.around(self.temperatures[i], 2)))
@@ -91,6 +140,16 @@ class MagnetisationPlotter(EvolutionPlotBase):
 
 class EnergyPlotter(EvolutionPlotBase):
     def __init__(self, histories, usetex=False):
+        '''
+        Class for automatically plotting the evolution of the energy per spin for a series of simulations.
+
+        :param histories: LatticeHistories instance or LatticeHistory instance or str
+                Simulation data. Either a pre-loaded set of data or a string indicating the directory in which
+                the data are stored.
+        :param usetex: bool
+                If True, use Latex for the plot layout. Default is False.
+        '''
+
         super(EnergyPlotter, self).__init__(histories, usetex)
 
         energies = np.array([history.energies for history in self.histories])
@@ -101,12 +160,24 @@ class EnergyPlotter(EvolutionPlotBase):
 
 
     def addHistory(self, history):
+        '''
+        Add the data of a single simulation to the object.
+
+        :param history: LatticeHistory instance or str
+                Data to use. Either a LatticeHistory object or a file name.
+        :return:
+        '''
 
         history = self._addHistory(history)
         self.energies = np.append(self.energies, history.energies / self.size**2, axis=0)
 
 
     def plot(self):
+        '''
+        Plot the energy per spin.
+
+        :return:
+        '''
 
         for i, el in enumerate(self.energies):
             self.ax.plot(self.times, el, lw=.5, alpha=.8, label="$T =$ {}".format(np.around(self.temperatures[i], 2)))

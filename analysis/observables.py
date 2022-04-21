@@ -16,6 +16,29 @@ class Measurer:
                  correlation_time=None,
                  lattice_size=None,
                  temperature=None):
+        '''
+        Class for conducting measurements of the mean absolute spin, the energy per spin, the magnetic susceptibility
+        and the specific heat of the lattice for a single simulation.
+
+        :param history: LatticeHistory instance or str or NoneType
+                Simulation data. Must be either a LatticeHistory object or a file name. If None, the data must be
+                provided through the other arguments of the function.
+        :param times: ndarray of shape (n_times,) or NoneType
+                Time stamps of the simulation data. If None, argument "history" must be provided. Default is None.
+        :param magnetisations: ndarray of shape (n_times,) or NoneType
+                Total magnetisation of the lattice at each point in time. If None, argument "history" must be provided.
+                Default is None.
+        :param energies: ndarray of shape (n_times,) or NoneType
+                Total energy of the lattice at each point in time. If None, argument "history" must be provided.
+                Default is None.
+        :param correlation_time: float or NoneType
+                Correlation time of the system. If None, argument "history" must be provided. Default is None.
+        :param lattice_size: int or NoneType
+                Linear size of the lattice in terms of atoms on each side. If None, argument "history" must be provided.
+                Default is None.
+        :param temperature: float or NoneType
+                Temperature of the system. If None, argument "history" must be provided. Default is None.
+        '''
 
         if isinstance(history, LatticeHistory):
             self.history = history
@@ -69,6 +92,17 @@ class Measurer:
 
 
     def meanAbsoluteSpin(self):
+        '''
+        Measure the mean absolute spin.
+
+        :return:
+            abs_spins: ndarray of shape (n_sweeps,)
+                Mean absolute spin measured in each full sweep of the lattice, i.e. in intervals of length 1.
+            mean: float
+                Average of the mean absolute spin over all sweeps
+            std: float
+                Standard deviation of the mean absolute spin over all sweeps, estimated using thermal averaging.
+        '''
 
         abs_spins = np.zeros(len(self.indices_sweep)-1)
 
@@ -83,6 +117,17 @@ class Measurer:
 
 
     def energyPerSpin(self):
+        '''
+        Measure the energy per spin.
+
+        :return:
+            energies_per_spin: ndarray of shape (n_sweeps,)
+                Energies per spin measured in each full sweep of the lattice, i.e. in intervals of length 1.
+            mean: float
+                Average of the energy per spin over all sweeps
+            std: float
+                Standard deviation of the energy per spin over all sweeps, estimated using thermal averaging.
+        '''
 
         energies_per_spin = np.zeros(len(self.indices_sweep)-1)
 
@@ -97,6 +142,17 @@ class Measurer:
 
 
     def magneticSusceptibility(self):
+        '''
+        Measure the magnetic susceptibility of the lattice.
+
+        :return:
+            susceptibilities: ndarray of shape (n_blocks,)
+                Susceptibility measured in each full block of 16 correlation times
+            mean: float
+                Average of the magnetic susceptibility over all blocks
+            std: float
+                Standard deviation of the magnetic susceptibility over all blocks
+        '''
 
         susceptibilities = np.zeros(len(self.indices_16tau)-1)
 
@@ -111,6 +167,17 @@ class Measurer:
 
 
     def specificHeatPerSpin(self):
+        '''
+        Measure the specific heat per spin of the lattice.
+
+        :return:
+            specific_heats: ndarray of shape (n_blocks,)
+                Specific heat measured in each full block of 16 correlation times
+            mean: float
+                Average of the specific heat over all blocks
+            std: float
+                Standard deviation of the specific heat over all blocks
+        '''
 
         specific_heats = np.zeros(len(self.indices_16tau)-1)
 
@@ -137,6 +204,40 @@ class ObservablePlotter(Measurer):
                  figsize=(8,8),
                  dpi=240,
                  titles=False):
+
+        '''
+        Class for plotting histograms of the mean absolute spin, the energy per spin, the magnetic susceptibility
+        and the specific heat of the lattice for a single simulation.
+
+        :param history: LatticeHistory instance or str or NoneType
+                Simulation data. Must be either a LatticeHistory object or a file name. If None, the data must be
+                provided through the other arguments of the function.
+        :param times: ndarray of shape (n_times,) or NoneType
+                Time stamps of the simulation data. If None, argument "history" must be provided. Default is None.
+        :param magnetisations: ndarray of shape (n_times,) or NoneType
+                Total magnetisation of the lattice at each point in time. If None, argument "history" must be provided.
+                Default is None.
+        :param energies: ndarray of shape (n_times,) or NoneType
+                Total energy of the lattice at each point in time. If None, argument "history" must be provided.
+                Default is None.
+        :param correlation_time: float or NoneType
+                Correlation time of the system. If None, argument "history" must be provided. Default is None.
+        :param lattice_size: int or NoneType
+                Linear size of the lattice in terms of atoms on each side. If None, argument "history" must be provided.
+                Default is None.
+        :param temperature: float or NoneType
+                Temperature of the system. If None, argument "history" must be provided. Default is None.
+        :param usetex: bool
+                If True, Latex is used for the figure layout. Default is False.
+        :param figsize: tuple of length 2
+                Sets the size of the figure. Is directly passed on to matplotlib.pyplot.subplots.
+                Default is (8,8).
+        :param dpi: int
+                Sets the dpi of the figure. Is directly passes on to matplotlib.pyplot.subplots.
+                Default is 240.
+        :param titles: bool
+                If True, adds a title to each subplot. Default is False.
+        '''
 
         super(ObservablePlotter, self).__init__(history, times, magnetisations, energies,
                                                 correlation_time, lattice_size, temperature)
@@ -171,6 +272,14 @@ class ObservablePlotter(Measurer):
 
 
     def plot(self, bins=10):
+        '''
+        Plot the historgrams.
+
+        :param bins: int or str
+                Sets the number of bins. Is directly passed on to matplotlib.pyplot.hist.
+                Default is 10.
+        :return:
+        '''
 
         self.ax[0,0].hist(self.abs_spins, bins=bins)
         self.ax[0,0].axvline(self.abs_spin_mean, color="black", ls="--", label="Mean")
@@ -196,11 +305,25 @@ class ObservablePlotter(Measurer):
 
 
     def show(self):
+        '''
+        Show the figure.
+
+        :return:
+        '''
 
         self.fig.show()
 
 
     def save(self, filename, tight=False):
+        '''
+        Save the figure.
+
+        :param filename: str
+                File name to which the figure should be saved.
+        :param tight: bool
+                Whether or not to set bbox_inches="tight". Default is False.
+        :return:
+        '''
 
         if tight:
             self.fig.savefig(filename, bbox_inches="tight")
@@ -210,10 +333,19 @@ class ObservablePlotter(Measurer):
 
 class DirectoryMeasurer:
     def __init__(self, directory, usetex=False):
+        '''
+        Conduct measurements of the mean absolute spin, the energy per spin, the magnetic susceptibility
+        and the specific heat for all simulation data in a given folder. All simulation data in the folder
+        must have the .hdf5 extension.
+
+        :param directory: str
+                Directory where the simulation data are stored.
+        :param usetex: bool
+                If True, uses Latex for the figure layout. Default is False.
+        '''
 
         plt.rcParams["text.usetex"] = usetex
 
-        #super(DirectoryMeasurer, self).__init__(directory)
         histories_obj = LatticeHistories(directory)
         histories = histories_obj.histories
         self.n_histories = histories_obj.n_histories
@@ -244,6 +376,21 @@ class DirectoryMeasurer:
 
 
     def plotCorrelationTimes(self, figsize=(6,4), dpi=240, mec="black"):
+        '''
+        Plot the correlation times as a function of temperature.
+
+        :param figsize: tuple of length 2
+                Sets the size of the figure. Is directly passed on to matplotlib.pyplot.subplots.
+                Default is (6,4).
+        :param dpi: int
+                Sets the dpi of the figure. Is directly passed on to matplotlib.pyplot.subplots.
+                Default is 240.
+        :param mec: str
+                Marker edge color, directly passed on to matplotlib.pyplot.plot. Default is "black".
+        :return:
+            fig: Figure object
+            ax: Axes object
+        '''
 
         fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
         ax.plot(self.temperatures, self.corr_times, marker="o", ls="", mec=mec)
@@ -259,6 +406,24 @@ class DirectoryMeasurer:
 
 
     def plotAbsSpins(self, figsize=(6,4), dpi=240, capsize=5, fmt="s", mec="black"):
+        '''
+        Plot the mean absolute spin as a function of temperature.
+
+        :param figsize: tuple of length 2
+                Sets the size of the figure. Is directly passed on to matplotlib.pyplot.subplots.
+                Default is (6,4).
+        :param dpi: int
+                Sets the dpi of the figure. Is directly passed on to matplotlib.pyplot.subplots.
+                Default is 240.
+        :param capsize: float
+                Sets the cap size of the error bars, directly passed on to matplotlib.pyplot.errorbar.
+                Default is 5.
+        :param mec: str
+                Marker edge color, directly passed on to matplotlib.pyplot.plot. Default is "black".
+        :return:
+            fig: Figure object
+            ax: Axes object
+        '''
 
         fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
         ax.errorbar(self.temperatures, self.abs_spin_means, yerr=self.abs_spin_stds,
@@ -275,6 +440,24 @@ class DirectoryMeasurer:
 
 
     def plotEnergyPerSpin(self, figsize=(6,4), dpi=240, capsize=5, fmt="s", mec="black"):
+        '''
+        Plot the energy per spin as a function of temperature.
+
+        :param figsize: tuple of length 2
+                Sets the size of the figure. Is directly passed on to matplotlib.pyplot.subplots.
+                Default is (6,4).
+        :param dpi: int
+                Sets the dpi of the figure. Is directly passed on to matplotlib.pyplot.subplots.
+                Default is 240.
+        :param capsize: float
+                Sets the cap size of the error bars, directly passed on to matplotlib.pyplot.errorbar.
+                Default is 5.
+        :param mec: str
+                Marker edge color, directly passed on to matplotlib.pyplot.plot. Default is "black".
+        :return:
+            fig: Figure object
+            ax: Axes object
+        '''
 
         fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
         ax.errorbar(self.temperatures, self.energy_per_spin_means, yerr=self.energy_per_spin_stds,
@@ -291,6 +474,24 @@ class DirectoryMeasurer:
 
 
     def plotMagneticSusceptibility(self, figsize=(6,4), dpi=240, capsize=5, fmt="s", mec="black"):
+        '''
+        Plot the magnetic susceptibility as a function of temperature.
+
+        :param figsize: tuple of length 2
+                Sets the size of the figure. Is directly passed on to matplotlib.pyplot.subplots.
+                Default is (6,4).
+        :param dpi: int
+                Sets the dpi of the figure. Is directly passed on to matplotlib.pyplot.subplots.
+                Default is 240.
+        :param capsize: float
+                Sets the cap size of the error bars, directly passed on to matplotlib.pyplot.errorbar.
+                Default is 5.
+        :param mec: str
+                Marker edge color, directly passed on to matplotlib.pyplot.plot. Default is "black".
+        :return:
+            fig: Figure object
+            ax: Axes object
+        '''
 
         fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
         ax.errorbar(self.temperatures, self.susc_means, yerr=self.susc_stds,
@@ -307,6 +508,24 @@ class DirectoryMeasurer:
 
 
     def plotSpecificHeat(self, figsize=(6,4), dpi=240, capsize=5, fmt="s", mec="black"):
+        '''
+        Plot the specific heat as a function of temperature.
+
+        :param figsize: tuple of length 2
+                Sets the size of the figure. Is directly passed on to matplotlib.pyplot.subplots.
+                Default is (6,4).
+        :param dpi: int
+                Sets the dpi of the figure. Is directly passed on to matplotlib.pyplot.subplots.
+                Default is 240.
+        :param capsize: float
+                Sets the cap size of the error bars, directly passed on to matplotlib.pyplot.errorbar.
+                Default is 5.
+        :param mec: str
+                Marker edge color, directly passed on to matplotlib.pyplot.plot. Default is "black".
+        :return:
+            fig: Figure object
+            ax: Axes object
+        '''
 
         fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
         ax.errorbar(self.temperatures, self.spec_heat_means, yerr=self.spec_heat_stds,
@@ -323,6 +542,28 @@ class DirectoryMeasurer:
 
 
     def plotAll(self, figsize=(6,4), dpi=240, capsize=5, fmt="s", mec="black"):
+        '''
+        Make plots of correlation time, mean absolute spin, energy per spin, magnetic susceptibility and
+        specific heat, all as a function of temperature.
+
+        :param figsize: tuple of length 2
+                Sets the size of the figure. Is directly passed on to matplotlib.pyplot.subplots.
+                Default is (6,4).
+        :param dpi: int
+                Sets the dpi of the figure. Is directly passed on to matplotlib.pyplot.subplots.
+                Default is 240.
+        :param capsize: float
+                Sets the cap size of the error bars, directly passed on to matplotlib.pyplot.errorbar.
+                Default is 5.
+        :param mec: str
+                Marker edge color, directly passed on to matplotlib.pyplot.plot. Default is "black".
+        :return:
+            [fig_tau, ax_tau]: Figure and Axes objects for the correlation time
+            [fig_abs_spin, ax_abs_spin]: Figure and Axes objects for the mean absolute spin
+            [fig_energy, ax_energy]: Figure and Axes objects for the energy per spin
+            [fig_susc, ax_susc]: Figure and Axes objects for the magnetic susceptibility
+            [fig_heat, ax_heat]: Figure and Axes objects for the specific heat
+        '''
 
         fig_tau, ax_tau = self.plotCorrelationTimes(figsize, dpi, mec=mec)
         fig_abs_spin, ax_abs_spin = self.plotAbsSpins(figsize, dpi, capsize, fmt, mec=mec)

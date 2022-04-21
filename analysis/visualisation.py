@@ -35,10 +35,20 @@ class LatticeVisual:
         self.ax.set_ylabel(r"$y$")
 
     def update(self):
+        '''
+        Update the figure after some evolution to the lattice has occurred.
+
+        :return:
+        '''
 
         self.im = self.ax.pcolormesh(self.lattice.x_grid, self.lattice.y_grid, self.lattice.spins, cmap=self.cmap)
 
 
     def show(self):
+        '''
+        Show the figure.
+
+        :return:
+        '''
 
         self.fig.show()
