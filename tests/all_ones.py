@@ -1,11 +1,10 @@
 '''Algorithm test: what happens if we start in a state where each spin is +1?'''
 from framework.lattice import Lattice
 from simulation.simulator import Simulator
-from simulation.utils import normalisedCorrelationFunction, correlationFunction
+from simulation.utils import correlationFunction
 from analysis.visualisation import LatticeVisual
 import matplotlib.pyplot as plt
 import numpy as np
-#from IPython import embed
 
 temp = 2.0
 N = 50

@@ -9,10 +9,9 @@ temp = 4.0
 
 lattice = Lattice(N)
 lattice.spins = np.ones((N,N))
-threshold = 1.1
 
 sim = Simulator(lattice, temp)
-times, magnetisations = sim.equilibrate(threshold=threshold, sweeps=10, reject_rate_threshold=1e-3)
+times, magnetisations = sim.equilibrate(sweeps=10, reject_rate_threshold=1e-3)
 
 fig, ax = plt.subplots(figsize=(7,5), dpi=240)
 ax.plot(times, magnetisations/N**2, lw=.5)
